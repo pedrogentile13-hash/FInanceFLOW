@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IA Financeira — FinanceFlow</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%23000A64%22/><text x=%2250%22 y=%2270%22 font-size=%2260%22 font-family=%22sans-serif%22 font-weight=%22bold%22 text-anchor=%22middle%22 fill=%22white%22>F</text></svg>">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="app">
+    <aside id="sidebar"></aside>
+    <main class="main">
+      <header id="topbar"></header>
+
+      <section class="grid grid-main section-gap">
+        <div>
+          <div class="card section-gap">
+            <div class="card-title">🤖 Insights Automáticos <span class="hint">gerados localmente, sem API</span></div>
+            <div id="insights"></div>
+          </div>
+          <div class="card section-gap">
+            <div class="card-title">🕵️ Detector de Gastos Inúteis</div>
+            <div id="waste"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">📋 Resumos Automáticos</div>
+            <div id="resumos"></div>
+          </div>
+        </div>
+        <div class="card" style="align-self:start;position:sticky;top:20px">
+          <div class="card-title">💬 Pergunte à IA</div>
+          <div class="chat-box" id="chatBox"></div>
+          <div class="chat-input">
+            <input id="chatInput" placeholder="Ex: quanto gastei este mês?">
+            <button class="btn btn-primary" id="chatSend">➤</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/ia.js"></script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador — FinanceFlow</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%23000A64%22/><text x=%2250%22 y=%2270%22 font-size=%2260%22 font-family=%22sans-serif%22 font-weight=%22bold%22 text-anchor=%22middle%22 fill=%22white%22>F</text></svg>">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/vendor/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <aside id="sidebar"></aside>
+    <main class="main">
+      <header id="topbar"></header>
+
+      <!-- Simulador de guardar dinheiro -->
+      <section class="card section-gap">
+        <div class="card-title">💰 Simulador: Guardar Dinheiro <span class="hint">com juros compostos</span></div>
+        <div class="form-grid">
+          <div class="field"><label>Valor a guardar (R$)</label><input type="number" id="sValor" min="0" step="0.01" placeholder="50,00"></div>
+          <div class="field"><label>Frequência</label>
+            <select id="sFreq"><option value="semana">Por semana</option><option value="mes">Por mês</option></select></div>
+          <div class="field"><label>Rendimento (% ao ano)</label><input type="number" id="sJuros" min="0" step="0.1" value="10"></div>
+          <div class="field" style="display:flex;align-items:flex-end">
+            <button class="btn btn-primary" id="runSave" style="width:100%">Simular</button></div>
+        </div>
+        <div class="kpi-grid mt-24" id="saveResults"></div>
+      </section>
+
+      <section class="card section-gap" id="simChartCard" style="display:none">
+        <div class="card-title">Crescimento Projetado <span class="hint">60 meses</span></div>
+        <div class="chart-box"><canvas id="simChart"></canvas></div>
+      </section>
+
+      <!-- Calculadora de compra -->
+      <section class="card section-gap">
+        <div class="card-title">🛒 Calculadora de Compra <span class="hint">impacto real no seu bolso</span></div>
+        <div class="form-grid">
+          <div class="field"><label>Produto</label><input id="bNome" placeholder="Ex: Samsung Buds"></div>
+          <div class="field"><label>Valor (R$)</label><input type="number" id="bValor" min="0" step="0.01" placeholder="207,00"></div>
+          <div class="field" style="display:flex;align-items:flex-end">
+            <button class="btn btn-primary" id="runBuy" style="width:100%">Analisar compra</button></div>
+        </div>
+        <div class="kpi-grid mt-24" id="buyResults"></div>
+        <div id="buyVerdict"></div>
+      </section>
+
+      <!-- Calculadoras PRO -->
+      <section class="card">
+        <div class="card-title">🧮 Calculadoras de Negócio</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px" id="calcTabs"></div>
+        <div id="calcBody"></div>
+      </section>
+    </main>
+  </div>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/simulador.js"></script>
+</body>
+</html>

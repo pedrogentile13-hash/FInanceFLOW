@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entradas — FinanceFlow</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%23000A64%22/><text x=%2250%22 y=%2270%22 font-size=%2260%22 font-family=%22sans-serif%22 font-weight=%22bold%22 text-anchor=%22middle%22 fill=%22white%22>F</text></svg>">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/vendor/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <aside id="sidebar"></aside>
+    <main class="main">
+      <header id="topbar"></header>
+
+      <section class="kpi-grid" id="kpis"></section>
+
+      <div class="filters" id="filters"></div>
+
+      <section class="grid grid-main">
+        <div class="card">
+          <div class="card-title">Histórico de Entradas</div>
+          <div class="table-wrap">
+            <table class="ff-table">
+              <thead>
+                <tr><th>Data</th><th>Origem</th><th>Categoria</th><th>Forma</th><th>Valor</th><th></th></tr>
+              </thead>
+              <tbody id="txBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Por Categoria</div>
+          <div class="chart-box tall"><canvas id="catChart"></canvas></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/transacoes.js"></script>
+  <script>TX.init('in');</script>
+</body>
+</html>
