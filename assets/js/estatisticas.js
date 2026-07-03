@@ -91,10 +91,10 @@
   const patrData = monthKeys.map(k => (acc += byMonth[k].in - byMonth[k].out, acc + FF.investTotal()));
   new Chart(document.getElementById('patrChart'), {
     type: 'line',
-    data: { labels, datasets: [{ label: 'Patrimônio', data: patrData, borderColor: '#2E3BC9', borderWidth: 2.5, tension: .4, pointRadius: 3, fill: true,
+    data: { labels, datasets: [{ label: 'Patrimônio', data: patrData, borderColor: FF.color(), borderWidth: 2.5, tension: .4, pointRadius: 3, fill: true,
       backgroundColor: (ctx) => {
         const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 260);
-        g.addColorStop(0, 'rgba(46,59,201,.22)'); g.addColorStop(1, 'rgba(46,59,201,0)');
+        g.addColorStop(0, FF.colorRGBA(.22)); g.addColorStop(1, FF.colorRGBA(0));
         return g;
       } }] },
     options: { maintainAspectRatio: false,
@@ -117,7 +117,7 @@
     type: 'radar',
     data: { labels: radarCats.map(c => c[0]),
       datasets: [{ label: 'Gastos', data: radarCats.map(c => c[1]),
-        borderColor: '#2E3BC9', backgroundColor: 'rgba(46,59,201,.18)', pointBackgroundColor: '#2E3BC9', borderWidth: 2 }] },
+        borderColor: FF.color(), backgroundColor: FF.colorRGBA(.18), pointBackgroundColor: FF.color(), borderWidth: 2 }] },
     options: { maintainAspectRatio: false, plugins: { legend: { display: false } },
       scales: { r: { ticks: { display: false }, pointLabels: { font: { size: 11 } } } } },
   });
@@ -134,7 +134,7 @@
     data: { labels: catsSet,
       datasets: [
         { label: fmtMonth(kPrev), data: catsSet.map(c => sumCat(kPrev, c)), backgroundColor: '#CCD3FF', borderRadius: 6, maxBarThickness: 22 },
-        { label: fmtMonth(kNow), data: catsSet.map(c => sumCat(kNow, c)), backgroundColor: '#2E3BC9', borderRadius: 6, maxBarThickness: 22 },
+        { label: fmtMonth(kNow), data: catsSet.map(c => sumCat(kNow, c)), backgroundColor: FF.color(), borderRadius: 6, maxBarThickness: 22 },
       ] },
     options: { maintainAspectRatio: false,
       scales: { y: { beginAtZero: true, ticks: { callback: v => 'R$' + v } }, x: { grid: { display: false } } },

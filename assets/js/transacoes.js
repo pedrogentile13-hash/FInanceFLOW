@@ -4,10 +4,8 @@
    ============================================================ */
 
 const TX = (() => {
-  const CATS = {
-    in: ['Mesada', 'TCCFlow', 'LIDARA Digital', 'LIDARA Learning', 'Presentes', 'Freelance', 'Trabalho', 'Outros'],
-    out: ['Tecnologia', 'Escola', 'Alimentação', 'Transporte', 'Jogos', 'Streaming', 'Presentes', 'Namoro', 'Projetos', 'Outros'],
-  };
+  // categorias dinâmicas gerenciadas em Configurações (core/store.js)
+  const cats = () => FF.categoryNames(type);
   const METHODS = ['Pix', 'Cartão', 'Dinheiro'];
 
   let type = 'in';
@@ -43,7 +41,7 @@ const TX = (() => {
       <input type="search" id="fQ" placeholder="🔎 Buscar descrição…" style="min-width:200px">
       <select id="fCat">
         <option value="">Todas as categorias</option>
-        ${CATS[type].map(c => `<option>${c}</option>`).join('')}
+        ${cats().map(c => `<option>${FF.esc(c)}</option>`).join('')}
       </select>
       <select id="fMonth">
         <option value="">Todos os meses</option>
@@ -110,7 +108,7 @@ const TX = (() => {
         <tr>
           <td>${FF.dateBR(t.date)}</td>
           <td><b>${esc(t.desc)}</b></td>
-          <td><span class="badge ${isIn ? 'green' : 'gray'}">${esc(t.category)}</span></td>
+          <td><span class="badge ${isIn ? 'green' : 'gray'}">${catIcon(t.category)}${esc(t.category)}</span></td>
           <td>${esc(t.method || '—')}</td>
           <td class="${isIn ? 'td-value-in' : 'td-value-out'}">${isIn ? '+' : '−'} ${FF.money(t.value)}</td>
           <td class="td-actions">
@@ -164,7 +162,7 @@ const TX = (() => {
           <div class="field"><label>Data</label><input type="date" id="mDate" value="${tx ? tx.date : FF.todayISO()}"></div>
           <div class="field"><label>Valor (R$)</label><input type="number" id="mValue" min="0" step="0.01" value="${tx ? tx.value : ''}" placeholder="0,00"></div>
           <div class="field"><label>Categoria</label>
-            <select id="mCat">${CATS[type].map(c => `<option ${tx && tx.category === c ? 'selected' : ''}>${c}</option>`).join('')}</select>
+            <select id="mCat">${cats().map(c => `<option ${tx && tx.category === c ? 'selected' : ''}>${FF.esc(c)}</option>`).join('')}</select>
           </div>
           <div class="field"><label>Forma</label>
             <select id="mMethod">${METHODS.map(m => `<option ${tx && tx.method === m ? 'selected' : ''}>${m}</option>`).join('')}</select>
@@ -203,7 +201,12 @@ const TX = (() => {
     render();
   }
 
+  const catIcon = (nome) => {
+    const c = FF.categoryByName(type, nome);
+    return c && c.icone ? c.icone + ' ' : '';
+  };
+
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-  return { init, CATS, METHODS };
+  return { init, METHODS };
 })();

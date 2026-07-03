@@ -127,14 +127,14 @@
       datasets: [{
         label: 'Patrimônio',
         data: dPatr,
-        borderColor: '#2E3BC9',
+        borderColor: FF.color(),
         backgroundColor: (ctx) => {
           const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 260);
-          g.addColorStop(0, 'rgba(46,59,201,.25)');
-          g.addColorStop(1, 'rgba(46,59,201,0)');
+          g.addColorStop(0, FF.colorRGBA(.25));
+          g.addColorStop(1, FF.colorRGBA(0));
           return g;
         },
-        fill: true, tension: .4, pointRadius: 3, pointBackgroundColor: '#2E3BC9', borderWidth: 2.5,
+        fill: true, tension: .4, pointRadius: 3, pointBackgroundColor: FF.color(), borderWidth: 2.5,
       }],
     },
     options: {
@@ -164,7 +164,7 @@
     type: 'bar',
     data: {
       labels: projs.map(p => p.nome),
-      datasets: [{ data: projs.map(p => p.rec), backgroundColor: '#2E3BC9', borderRadius: 8, maxBarThickness: 30 }],
+      datasets: [{ data: projs.map(p => p.rec), backgroundColor: FF.color(), borderRadius: 8, maxBarThickness: 30 }],
     },
     options: {
       indexAxis: 'y', maintainAspectRatio: false,

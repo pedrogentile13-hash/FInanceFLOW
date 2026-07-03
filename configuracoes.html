@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurações — FinanceFlow</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%23000A64%22/><text x=%2250%22 y=%2270%22 font-size=%2260%22 font-family=%22sans-serif%22 font-weight=%22bold%22 text-anchor=%22middle%22 fill=%22white%22>F</text></svg>">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="app">
+    <aside id="sidebar"></aside>
+    <main class="main">
+      <header id="topbar"></header>
+
+      <section class="grid grid-2 section-gap" style="align-items:start">
+        <div>
+          <!-- Perfil -->
+          <div class="card settings-section">
+            <div class="card-title">👤 Perfil</div>
+            <div id="profileBox"></div>
+          </div>
+
+          <!-- Personalização -->
+          <div class="card settings-section">
+            <div class="card-title">🎨 Personalização</div>
+            <div class="settings-row">
+              <div class="sr-info"><b>Tema</b><span>Claro ou escuro em todo o sistema</span></div>
+              <select id="setTheme">
+                <option value="light">☀️ Claro</option>
+                <option value="dark">🌙 Escuro</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div class="sr-info"><b>Cor principal</b><span>Aplicada a botões, gráficos e destaques</span></div>
+              <div class="accent-swatches" id="accentSwatches"></div>
+            </div>
+            <div class="settings-row">
+              <div class="sr-info"><b>Idioma e formatos</b><span>Afeta números, datas e o menu lateral</span></div>
+              <select id="setLocale">
+                <option value="pt-BR">🇧🇷 Português (Brasil)</option>
+                <option value="en-US">🇺🇸 English (US)</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div class="sr-info"><b>Moeda</b><span>Símbolo usado em todos os valores</span></div>
+              <select id="setCurrency">
+                <option value="BRL">R$ — Real brasileiro</option>
+                <option value="USD">$ — Dólar americano</option>
+                <option value="EUR">€ — Euro</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div class="sr-info"><b>Formato de data</b><span>Como as datas aparecem nas listas</span></div>
+              <select id="setDateFormat">
+                <option value="dmy">31/12/2026</option>
+                <option value="mdy">12/31/2026</option>
+                <option value="ymd">2026-12-31</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Sistema -->
+          <div class="card settings-section">
+            <div class="card-title">🖥️ Sistema</div>
+            <div class="settings-row">
+              <div class="sr-info"><b>Backup</b><span>Exporte todos os dados em JSON</span></div>
+              <button class="btn btn-ghost btn-sm" id="btnExport">⬇️ Exportar</button>
+            </div>
+            <div class="settings-row">
+              <div class="sr-info"><b>Restaurar backup</b><span>Importe um arquivo exportado anteriormente</span></div>
+              <button class="btn btn-ghost btn-sm" id="btnImport">⬆️ Importar</button>
+            </div>
+            <div class="settings-row">
+              <div class="sr-info"><b>Resetar sistema</b><span>Apaga todos os dados deste perfil. Irreversível!</span></div>
+              <button class="btn btn-danger btn-sm" id="btnReset">🗑️ Resetar</button>
+            </div>
+          </div>
+
+          <!-- Nuvem -->
+          <div class="card settings-section">
+            <div class="card-title">☁️ Sincronização em nuvem <span class="hint" id="syncBadgeWrap"><span class="badge gray" id="syncBadge">desativada</span></span></div>
+            <p class="muted small" style="margin-bottom:14px">
+              Conecte um projeto <b>Supabase</b> (gratuito) para login com Google, recuperação de senha por
+              e-mail e sincronização automática entre dispositivos. Execute o script
+              <code>supabase/schema.sql</code> no seu projeto e cole as credenciais abaixo.
+            </p>
+            <div class="form-grid">
+              <div class="field" style="grid-column:1/-1"><label>URL do projeto</label>
+                <input id="sbUrl" placeholder="https://xxxx.supabase.co"></div>
+              <div class="field" style="grid-column:1/-1"><label>Chave anônima (anon key)</label>
+                <input id="sbKey" placeholder="eyJhbGciOi..."></div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+              <button class="btn btn-primary btn-sm" id="btnSbSave">Salvar conexão</button>
+              <button class="btn btn-ghost btn-sm" id="btnSbClear">Desconectar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Categorias -->
+        <div>
+          <div class="card settings-section">
+            <div class="card-title">💵 Categorias de entrada
+              <button class="btn btn-ghost btn-sm" id="btnNewCatIn">＋ Nova</button></div>
+            <div class="cat-list" id="catsIn"></div>
+          </div>
+          <div class="card settings-section">
+            <div class="card-title">💸 Categorias de saída
+              <button class="btn btn-ghost btn-sm" id="btnNewCatOut">＋ Nova</button></div>
+            <div class="cat-list" id="catsOut"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="assets/js/core/utils.js"></script>
+  <script src="assets/js/core/store.js"></script>
+  <script src="assets/js/core/gamification.js"></script>
+  <script src="assets/js/core/ui.js"></script>
+  <script src="assets/js/core/auth.js"></script>
+  <script src="assets/js/core/sync.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/configuracoes.js"></script>
+</body>
+</html>

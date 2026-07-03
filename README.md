@@ -19,14 +19,33 @@ Sistema operacional completo para gestão financeira pessoal, metas, sonhos, pro
 | `simulador.html` | Simulador de poupança, calculadora de compra e 9 calculadoras de negócio (ROI, CAC, LTV, Break Even…) |
 | `ia-financeira.html` | Motor de insights por regras (100% local), detector de gastos inúteis, resumos e chat |
 | `conquistas.html` | Gamificação: XP, níveis, missões e 20 conquistas |
+| `configuracoes.html` | Central completa: tema, cor principal, idioma/moeda/data, CRUD de categorias, backup, reset e conexão com a nuvem |
+| `login.html` | Login, cadastro, recuperação de senha e login com Google (via Supabase) |
 
 ## 🛠️ Stack
 
-- **HTML5 + CSS3 + Vanilla JS** — zero frameworks
-- **Chart.js** (embutido em `assets/vendor/`, funciona offline)
-- **LocalStorage** — todos os dados ficam no seu navegador
-- **Fonte Inter** embutida (`assets/fonts/`)
-- Modo claro/escuro, mobile-first, backup por exportação/importação de JSON
+- **HTML5 + CSS3 + Vanilla JS** — zero frameworks, zero build
+- **Chart.js** e **fonte Inter** embutidos (funciona 100% offline)
+- **LocalStorage** por padrão; **Supabase** opcional para nuvem
+- Modo claro/escuro, 6 cores de destaque, mobile-first, backup JSON
+
+## ☁️ Nuvem e autenticação (opcional)
+
+O app funciona 100% local por padrão. Para login com Google, recuperação de senha
+por e-mail e sincronização automática entre dispositivos:
+
+1. Crie um projeto gratuito em [supabase.com](https://supabase.com).
+2. Rode `supabase/schema.sql` no SQL Editor (cria a tabela com Row Level Security).
+3. Habilite os provedores Email e Google em Authentication.
+4. Cole a URL e a anon key em **Configurações → Sincronização em nuvem**.
+
+Sem Supabase, o login local (offline) continua disponível: contas com senha
+protegida por hash, código de recuperação e dados isolados por usuário.
+
+> **Por que Supabase e não Firebase?** Postgres relacional (dados financeiros são
+> relacionais), Row Level Security declarada no banco, auth com Google incluída,
+> SDK utilizável sem build via bundle local, realtime nativo e open source sem
+> lock-in. Justificativa completa em `docs/PLANO-V1.md`.
 
 ## 🚀 Como rodar
 
@@ -46,11 +65,20 @@ Na primeira visita o sistema carrega dados de demonstração; use os botões **E
 ## 📁 Estrutura
 
 ```
-index.html … conquistas.html   páginas
+index.html … login.html        páginas
 assets/
-  css/style.css                design system completo (tokens, dark mode, componentes)
-  js/app.js                    núcleo: storage, layout, tema, modal, toast, XP/conquistas
+  css/style.css                design system (tokens, dark mode, componentes, animações)
+  js/core/
+    utils.js                   formatação (moeda/data/idioma), helpers
+    store.js                   estado, persistência por perfil, categorias, backup
+    gamification.js            XP, níveis, conquistas
+    ui.js                      tema, cor principal, sidebar, topbar, toast, modal
+    auth.js                    contas locais + provedor Supabase
+    sync.js                    sincronização em nuvem (Supabase)
+  js/app.js                    compositor: inicialização de página
   js/<página>.js               lógica de cada módulo
-  vendor/chart.umd.min.js      Chart.js local
+  vendor/                      Chart.js e Supabase SDK locais
   fonts/                       Inter (woff2)
+supabase/schema.sql            tabela + RLS + realtime para a nuvem
+docs/PLANO-V1.md               plano de implementação da v1.0
 ```
