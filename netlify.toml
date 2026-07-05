@@ -1,0 +1,40 @@
+# ============================================================
+# FinanceFlow — Configuração do Netlify
+# Site estático: publica a raiz do repositório, sem build.
+# ============================================================
+
+[build]
+  publish = "."
+  command = ""
+
+# Service worker sempre fresco (garante a atualização em tempo real do PWA)
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+    Cache-Control = "public, max-age=3600"
+
+# Assets versionados podem ser cacheados de forma agressiva
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+# Segurança básica
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Atalho: /app leva direto ao dashboard
+[[redirects]]
+  from = "/app"
+  to = "/pages/dashboard.html"
+  status = 302
