@@ -16,16 +16,16 @@
   const locked = FF.ACHIEVEMENTS.filter(a => !S.achievements.includes(a.id));
 
   document.getElementById('kpis').innerHTML = `
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Nível atual</span><span class="kpi-icon amber">⚡</span></div>
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Nível atual</span><span class="kpi-icon amber">${FF.icon('zap')}</span></div>
       <div class="kpi-value">Nível ${li.level}</div>
       <div class="kpi-sub">${li.xp} XP acumulados</div></div>
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Próximo nível</span><span class="kpi-icon">🎯</span></div>
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Próximo nível</span><span class="kpi-icon ">${FF.icon('target')}</span></div>
       <div class="kpi-value">${li.next - li.xp} XP</div>
       <div class="kpi-sub">Faltam para o nível ${li.level + 1}</div></div>
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Conquistas</span><span class="kpi-icon green">🏆</span></div>
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Conquistas</span><span class="kpi-icon green">${FF.icon('award')}</span></div>
       <div class="kpi-value">${unlocked.length}/${FF.ACHIEVEMENTS.length}</div>
       <div class="kpi-sub">${FF.pct((unlocked.length / FF.ACHIEVEMENTS.length) * 100)} completo</div></div>
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Sequência econômica</span><span class="kpi-icon">🔥</span></div>
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Sequência econômica</span><span class="kpi-icon ">${FF.icon('flame')}</span></div>
       <div class="kpi-value">${FF.savingStreak()} dias</div>
       <div class="kpi-sub">Sem registrar gastos</div></div>`;
 

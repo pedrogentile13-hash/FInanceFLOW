@@ -6,10 +6,12 @@
   FF.init({
     title: 'Estatísticas',
     subtitle: 'O raio-x completo da sua vida financeira',
+    actions: FF.periodSelectorHTML(),
   });
+  FF.bindPeriodSelector();
 
   const S = FF.state;
-  const txs = S.transactions;
+  const txs = FF.periodTx(); // respeita o período escolhido (mês / 3 meses / ano / tudo)
   const ins = txs.filter(t => t.type === 'in');
   const outs = txs.filter(t => t.type === 'out');
 
@@ -33,8 +35,13 @@
   const firstDate = txs.length ? txs.map(t => t.date).sort()[0] : FF.todayISO();
   const nDays = Math.max(1, Math.ceil((Date.now() - new Date(firstDate + 'T00:00')) / 86400000));
 
-  const catIn = FF.byCategory('in');
-  const catOut = FF.byCategory('out');
+  const catOf = (type) => {
+    const map = {};
+    for (const t of txs) if (t.type === type) map[t.category] = (map[t.category] || 0) + t.value;
+    return Object.entries(map).sort((a, b) => b[1] - a[1]);
+  };
+  const catIn = catOf('in');
+  const catOut = catOf('out');
 
   let melhorMes = null, piorMes = null;
   for (const k of monthKeys) {
@@ -50,8 +57,8 @@
 
   const statCards = [
     { l: 'Patrimônio total', v: FF.money(FF.patrimonio()), i: '🏦', sub: 'Saldo + investimentos' },
-    { l: 'Maior entrada da história', v: maiorIn ? FF.money(maiorIn.value) : '—', i: '🏔️', sub: maiorIn ? `${maiorIn.desc} · ${FF.dateBR(maiorIn.date)}` : 'Sem registros', cls: 'green' },
-    { l: 'Maior gasto da história', v: maiorOut ? FF.money(maiorOut.value) : '—', i: '🌋', sub: maiorOut ? `${maiorOut.desc} · ${FF.dateBR(maiorOut.date)}` : 'Sem registros', cls: 'red' },
+    { l: 'Maior entrada do período', v: maiorIn ? FF.money(maiorIn.value) : '—', i: '🏔️', sub: maiorIn ? `${maiorIn.desc} · ${FF.dateBR(maiorIn.date)}` : 'Sem registros', cls: 'green' },
+    { l: 'Maior gasto do período', v: maiorOut ? FF.money(maiorOut.value) : '—', i: '🌋', sub: maiorOut ? `${maiorOut.desc} · ${FF.dateBR(maiorOut.date)}` : 'Sem registros', cls: 'red' },
     { l: 'Média diária de gastos', v: FF.money(totalOut / nDays), i: '📅', sub: `${nDays} dias de histórico` },
     { l: 'Média semanal de gastos', v: FF.money((totalOut / nDays) * 7), i: '🗓️', sub: 'Projeção pela média diária' },
     { l: 'Média mensal de gastos', v: FF.money(totalOut / nMonths), i: '📆', sub: `${nMonths} meses de histórico` },
@@ -143,7 +150,7 @@
 
   /* ---------- Heatmap financeiro (estilo GitHub) ---------- */
   const outByDay = {};
-  for (const t of outs) outByDay[t.date] = (outByDay[t.date] || 0) + t.value;
+  for (const t of S.transactions.filter(t => t.type === 'out')) outByDay[t.date] = (outByDay[t.date] || 0) + t.value;
 
   const dayValues = Object.values(outByDay).sort((a, b) => a - b);
   const q = (p) => dayValues.length ? dayValues[Math.min(dayValues.length - 1, Math.floor(dayValues.length * p))] : 0;

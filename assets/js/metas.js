@@ -6,7 +6,7 @@
   FF.init({
     title: 'Metas',
     subtitle: 'Objetivos claros, progresso visível',
-    actions: `<button class="btn btn-primary" id="newMeta">＋ Nova meta</button>`,
+    actions: `<button class="btn btn-primary" id="newMeta">+ Nova meta</button>`,
   });
   document.getElementById('newMeta').onclick = () => openForm();
 
@@ -25,14 +25,14 @@
     const totalAtual = metas.reduce((s, m) => s + Math.min(m.atual, m.objetivo), 0);
 
     document.getElementById('kpis').innerHTML = `
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Metas ativas</span><span class="kpi-icon">🎯</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Metas ativas</span><span class="kpi-icon ">${FF.icon('target')}</span></div>
         <div class="kpi-value">${metas.length - done}</div><div class="kpi-sub">${done} concluídas</div></div>
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Total planejado</span><span class="kpi-icon amber">🗺️</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Total planejado</span><span class="kpi-icon amber">${FF.icon('layers')}</span></div>
         <div class="kpi-value">${FF.money(totalObj)}</div><div class="kpi-sub">Somatório dos objetivos</div></div>
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Já acumulado</span><span class="kpi-icon green">💰</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Já acumulado</span><span class="kpi-icon green">${FF.icon('wallet')}</span></div>
         <div class="kpi-value">${FF.money(totalAtual)}</div>
         <div class="kpi-sub">${totalObj ? FF.pct((totalAtual / totalObj) * 100) : '0%'} do caminho</div></div>
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Falta conquistar</span><span class="kpi-icon red">⛰️</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Falta conquistar</span><span class="kpi-icon red">${FF.icon('trending-up')}</span></div>
         <div class="kpi-value">${FF.money(Math.max(0, totalObj - totalAtual))}</div><div class="kpi-sub">Continue avançando</div></div>`;
 
     const grid = document.getElementById('metasGrid');
@@ -70,10 +70,10 @@
           </div>
           <div class="progress ${completa ? 'green' : p < 35 ? 'amber' : ''}"><span style="width:${p}%"></span></div>
           <div class="flex-between mt-16">
-            <button class="btn btn-ghost btn-sm" data-add="${m.id}">💰 Aportar</button>
+            <button class="btn btn-ghost btn-sm" data-add="${m.id}">Aportar</button>
             <div class="td-actions">
-              <button class="row-btn" data-edit="${m.id}" title="Editar">✏️</button>
-              <button class="row-btn del" data-del="${m.id}" title="Excluir">🗑️</button>
+              <button class="row-btn" data-edit="${m.id}" title="Editar">${FF.icon('pencil', 14)}</button>
+              <button class="row-btn del" data-del="${m.id}" title="Excluir">${FF.icon('trash', 14)}</button>
             </div>
           </div>
         </div>`;

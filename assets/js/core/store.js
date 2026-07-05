@@ -46,7 +46,7 @@
     xp: 0,
     achievements: [],
     settings: {
-      theme: 'light', accent: 'azul', locale: 'pt-BR',
+      theme: 'light', accent: 'azul', locale: 'pt-BR', period: 'month',
       currency: 'BRL', dateFormat: 'dmy', nome: 'Investidor',
     },
     seeded: false,
@@ -140,6 +140,37 @@
     for (const l of (p.lancamentos || [])) l.tipo === 'receita' ? rec += l.valor : cus += l.valor;
     return { receita: rec, custos: cus, lucro: rec - cus };
   };
+
+  /* ---------- período de visualização (mês / 3 meses / ano / tudo) ---------- */
+  FF.periodRange = (offset = 0) => {
+    const p = FF.state.settings.period || 'month';
+    const now = new Date();
+    let start, end;
+    if (p === 'month') {
+      start = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+      end = new Date(now.getFullYear(), now.getMonth() + offset + 1, 0);
+    } else if (p === 'quarter') {
+      start = new Date(now.getFullYear(), now.getMonth() - 2 + offset * 3, 1);
+      end = new Date(now.getFullYear(), now.getMonth() + 1 + offset * 3, 0);
+    } else if (p === 'year') {
+      start = new Date(now.getFullYear() + offset, 0, 1);
+      end = new Date(now.getFullYear() + offset, 11, 31);
+    } else {
+      return null; // tudo
+    }
+    const iso = d => d.toISOString().slice(0, 10);
+    return { start: iso(start), end: iso(end) };
+  };
+
+  FF.periodTx = (offset = 0) => {
+    const r = FF.periodRange(offset);
+    if (!r) return FF.state.transactions;
+    return FF.state.transactions.filter(t => t.date >= r.start && t.date <= r.end);
+  };
+
+  FF.periodLabel = () => ({
+    month: 'do mês', quarter: 'dos últimos 3 meses', year: 'do ano', all: 'de todo o período',
+  }[FF.state.settings.period || 'month']);
 
   FF.byCategory = (type) => {
     const map = {};

@@ -6,6 +6,9 @@
   <title>FinanceFlow — Transformando dinheiro em decisões inteligentes</title>
   <meta name="description" content="FinanceFlow: o sistema operacional completo para sua vida financeira. Controle, metas, sonhos, projetos, estatísticas e IA — tudo em um só lugar.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%23000A64%22/><text x=%2250%22 y=%2270%22 font-size=%2260%22 font-family=%22sans-serif%22 font-weight=%22bold%22 text-anchor=%22middle%22 fill=%22white%22>F</text></svg>">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#000A64">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body class="landing">
@@ -16,35 +19,43 @@
       <span class="brand-name">Finance<span>Flow</span></span>
     </a>
     <div style="display:flex;gap:10px;align-items:center">
-      <button class="icon-btn" id="lpTheme" title="Alternar tema">🌙</button>
-      <a class="btn btn-primary" href="dashboard.html">Entrar no Dashboard</a>
+      <button class="icon-btn" id="lpTheme" title="Alternar tema"></button>
+      <button class="btn btn-ghost" id="btnInstallLp" style="display:none">Instalar app</button>
+      <button class="btn btn-ghost" data-auth="login">Entrar</button>
+      <button class="btn btn-primary" data-auth="register">Criar conta</button>
     </div>
   </nav>
 
   <!-- HERO -->
   <header class="hero">
-    <h1>Transforme seu dinheiro em <em>dados, metas e conquistas</em>.</h1>
-    <p>O FinanceFlow é o sistema operacional da sua vida financeira: controle total, estatísticas avançadas, metas, sonhos, projetos e uma IA que trabalha por você.</p>
-    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <a class="btn btn-primary btn-lg" href="dashboard.html">Entrar no Dashboard →</a>
-      <a class="btn btn-ghost btn-lg" href="#recursos">Conhecer recursos</a>
-    </div>
-
-    <!-- Dashboard preview -->
-    <div class="preview-shell">
-      <div class="preview-bar">
-        <i style="background:#EF4444"></i><i style="background:#F59E0B"></i><i style="background:#22C55E"></i>
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">Gestão financeira · Metas · Projetos · IA</span>
+        <h1>Transforme seu dinheiro em <em>dados, metas e conquistas</em>.</h1>
+        <p>O FinanceFlow é o sistema operacional da sua vida financeira: controle total, estatísticas avançadas, metas, sonhos, projetos e uma IA que trabalha por você.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-lg" data-auth="register">Começar agora</button>
+          <a class="btn btn-ghost btn-lg" href="pages/dashboard.html">Explorar sem conta</a>
+        </div>
+        <p class="muted small" style="margin-top:16px">Sem cartão. Seus dados ficam com você.</p>
       </div>
-      <div class="preview-body">
-        <div class="kpi-grid" style="margin-bottom:0">
-          <div class="kpi"><div class="kpi-head"><span class="kpi-label">Patrimônio Atual</span><span class="kpi-icon">🏦</span></div>
-            <div class="kpi-value">R$ 4.280,00</div><div class="kpi-sub"><span class="up">▲ 15%</span> este mês</div></div>
-          <div class="kpi"><div class="kpi-head"><span class="kpi-label">Economia do Mês</span><span class="kpi-icon green">🌱</span></div>
-            <div class="kpi-value">32%</div><div class="kpi-sub">R$ 486,00 guardados</div></div>
-          <div class="kpi"><div class="kpi-head"><span class="kpi-label">Meta Principal</span><span class="kpi-icon amber">🎯</span></div>
-            <div class="kpi-value">61%</div><div class="kpi-sub">MacBook — faltam R$ 3.120</div></div>
-          <div class="kpi"><div class="kpi-head"><span class="kpi-label">Nível Financeiro</span><span class="kpi-icon">⚡</span></div>
-            <div class="kpi-value">Nível 7</div><div class="kpi-sub">840 XP acumulados</div></div>
+
+      <!-- Dashboard preview -->
+      <div class="preview-shell">
+        <div class="preview-bar">
+          <i style="background:#EF4444"></i><i style="background:#F59E0B"></i><i style="background:#22C55E"></i>
+        </div>
+        <div class="preview-body">
+          <div class="kpi-grid" style="margin-bottom:0">
+            <div class="kpi"><div class="kpi-head"><span class="kpi-label">Patrimônio Atual</span></div>
+              <div class="kpi-value">R$ 4.280,00</div><div class="kpi-sub"><span class="up">▲ 15%</span> este mês</div></div>
+            <div class="kpi"><div class="kpi-head"><span class="kpi-label">Economia do Mês</span></div>
+              <div class="kpi-value">32%</div><div class="kpi-sub">R$ 486,00 guardados</div></div>
+            <div class="kpi"><div class="kpi-head"><span class="kpi-label">Meta Principal</span></div>
+              <div class="kpi-value">61%</div><div class="kpi-sub">MacBook — faltam R$ 3.120</div></div>
+            <div class="kpi"><div class="kpi-head"><span class="kpi-label">Nível Financeiro</span></div>
+              <div class="kpi-value">Nível 7</div><div class="kpi-sub">840 XP acumulados</div></div>
+          </div>
         </div>
       </div>
     </div>
@@ -54,17 +65,7 @@
   <section class="lp-section" id="recursos">
     <h2>Um sistema. Sua vida financeira inteira.</h2>
     <p class="sub">Cada módulo foi pensado para transformar números soltos em decisões inteligentes.</p>
-    <div class="feature-grid">
-      <div class="feature"><div class="f-icon">📊</div><h3>Dashboard Executivo</h3><p>Patrimônio, fluxo de caixa, economia e metas em uma visão de CEO — atualizada em tempo real.</p></div>
-      <div class="feature"><div class="f-icon">💵</div><h3>Entradas & Saídas</h3><p>CRUD completo com categorias, formas de pagamento, filtros e gráficos automáticos.</p></div>
-      <div class="feature"><div class="f-icon">📉</div><h3>Estatísticas Avançadas</h3><p>Recordes históricos, médias diárias, comparativos mensais e heatmap de gastos estilo GitHub.</p></div>
-      <div class="feature"><div class="f-icon">🎯</div><h3>Metas Inteligentes</h3><p>Prazos, prioridades, barras de progresso e previsão automática de conclusão.</p></div>
-      <div class="feature"><div class="f-icon">✨</div><h3>Painel de Sonhos</h3><p>Visualize cada sonho, acompanhe o acumulado e saiba exatamente quando ele se realiza.</p></div>
-      <div class="feature"><div class="f-icon">🤖</div><h3>IA Financeira</h3><p>Insights automáticos, detector de desperdícios, previsões e um chat que responde sobre seus dados.</p></div>
-      <div class="feature"><div class="f-icon">🏗️</div><h3>Gestão de Projetos</h3><p>Cada projeto vira um mini negócio: receita, custos, lucro, clientes, MRR, ARR e runway.</p></div>
-      <div class="feature"><div class="f-icon">🧮</div><h3>Simuladores & Calculadoras</h3><p>Juros compostos, calculadora de compra, ROI, CAC, LTV, break even e preço ideal.</p></div>
-      <div class="feature"><div class="f-icon">🏆</div><h3>Gamificação</h3><p>XP, níveis, conquistas e sequências de economia. Organizar dinheiro virou um jogo.</p></div>
-    </div>
+    <div class="feature-grid" id="featureGrid"></div>
   </section>
 
   <!-- ESTATÍSTICAS -->
@@ -72,55 +73,83 @@
     <h2>Números que falam por si</h2>
     <p class="sub">Construído para crescer com você — do primeiro real ao primeiro milhão.</p>
     <div class="lp-stats">
-      <div class="lp-stat"><b>12</b><span>módulos integrados</span></div>
+      <div class="lp-stat"><b>13</b><span>módulos integrados</span></div>
       <div class="lp-stat"><b>20+</b><span>conquistas desbloqueáveis</span></div>
       <div class="lp-stat"><b>9</b><span>calculadoras de negócio</span></div>
-      <div class="lp-stat"><b>100%</b><span>seus dados, no seu dispositivo</span></div>
+      <div class="lp-stat"><b>100%</b><span>seus dados, no seu controle</span></div>
     </div>
   </section>
 
   <!-- IA -->
   <section class="lp-section">
     <h2>Uma IA que conhece o seu dinheiro</h2>
-    <p class="sub">Sem APIs, sem nuvem, sem espiar. As análises são geradas localmente a partir dos seus próprios dados.</p>
-    <div style="max-width:640px;margin:0 auto">
-      <div class="insight good"><span class="i-icon">🚀</span><div><small>Patrimônio</small><p>Seu patrimônio cresceu <b>15%</b> este mês.</p></div></div>
-      <div class="insight warn"><span class="i-icon">📈</span><div><small>Alerta de gasto</small><p>Você gastou <b>24% mais</b> em tecnologia em relação ao mês passado.</p></div></div>
-      <div class="insight good"><span class="i-icon">🎯</span><div><small>Previsão de meta</small><p>Se continuar economizando neste ritmo, você alcança o <b>MacBook</b> em <b>48 dias</b>.</p></div></div>
-      <div class="insight warn"><span class="i-icon">✂️</span><div><small>Detector de desperdício</small><p>Reduzindo <b>10%</b> dos gastos com delivery você economizaria <b>R$ 360</b> por ano.</p></div></div>
+    <p class="sub">Análises geradas localmente a partir dos seus próprios dados — sem espiar.</p>
+    <div class="lp-ia-wrap" style="max-width:640px">
+      <div class="insight good"><span class="i-icon" data-ic="trending-up"></span><div><small>Patrimônio</small><p>Seu patrimônio cresceu <b>15%</b> este mês.</p></div></div>
+      <div class="insight warn"><span class="i-icon" data-ic="activity"></span><div><small>Alerta de gasto</small><p>Você gastou <b>24% mais</b> em tecnologia em relação ao mês passado.</p></div></div>
+      <div class="insight good"><span class="i-icon" data-ic="target"></span><div><small>Previsão de meta</small><p>Se continuar economizando neste ritmo, você alcança o <b>MacBook</b> em <b>48 dias</b>.</p></div></div>
+      <div class="insight warn"><span class="i-icon" data-ic="shopping-bag"></span><div><small>Detector de desperdício</small><p>Reduzindo <b>10%</b> dos gastos com delivery você economizaria <b>R$ 360</b> por ano.</p></div></div>
     </div>
   </section>
 
   <!-- CTA FINAL -->
   <section class="cta-final">
     <h2>Pronto para assumir o controle?</h2>
-    <p>Comece agora. Sem cadastro, sem cartão, sem desculpas.</p>
-    <a class="btn btn-lg" href="dashboard.html">Entrar no Dashboard →</a>
+    <p>Crie sua conta gratuita e leve o FinanceFlow no bolso — instale como app no celular.</p>
+    <button class="btn btn-lg" data-auth="register">Criar conta gratuita</button>
   </section>
 
   <footer class="lp-footer">
     <span><b>FinanceFlow</b> — Transformando dinheiro em decisões inteligentes.</span>
-    <span>Feito com HTML, CSS e JavaScript puro. Seus dados ficam no seu navegador.</span>
+    <span>Feito com HTML, CSS e JavaScript puro. Seus dados ficam com você.</span>
   </footer>
 
-  <script>
-    // tema na landing (compartilha o mesmo storage do app)
-    (function () {
-      const KEY = 'financeflow_v1';
-      let data = {};
-      try { data = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
-      data.settings = data.settings || { theme: 'light', nome: 'Investidor' };
-      const apply = () => {
-        document.documentElement.setAttribute('data-theme', data.settings.theme);
-        document.getElementById('lpTheme').textContent = data.settings.theme === 'dark' ? '☀️' : '🌙';
-      };
-      document.getElementById('lpTheme').onclick = () => {
-        data.settings.theme = data.settings.theme === 'dark' ? 'light' : 'dark';
-        localStorage.setItem(KEY, JSON.stringify(data));
-        apply();
-      };
-      apply();
-    })();
-  </script>
+  <!-- MODAL DE CONTA -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal auth-modal" style="width:min(420px,100%)">
+      <div class="modal-head">
+        <h3 id="authTitle">Entrar</h3>
+        <button class="modal-close" id="authClose" aria-label="Fechar">✕</button>
+      </div>
+      <div class="auth-tabs">
+        <button class="active" data-tab="login">Entrar</button>
+        <button data-tab="register">Criar conta</button>
+      </div>
+
+      <form class="auth-form" id="formLogin">
+        <div class="field"><label>E-mail</label>
+          <input type="email" id="loginEmail" placeholder="voce@email.com" autocomplete="email" required></div>
+        <div class="field"><label>Senha</label>
+          <input type="password" id="loginPass" placeholder="Sua senha" autocomplete="current-password" required></div>
+        <button class="btn btn-primary" type="submit" style="width:100%">Entrar</button>
+      </form>
+
+      <form class="auth-form" id="formRegister" style="display:none">
+        <div class="field"><label>Nome</label>
+          <input id="regNome" placeholder="Seu nome" autocomplete="name" required></div>
+        <div class="field"><label>E-mail</label>
+          <input type="email" id="regEmail" placeholder="voce@email.com" autocomplete="email" required></div>
+        <div class="field"><label>Senha (mín. 6 caracteres)</label>
+          <input type="password" id="regPass" placeholder="Crie uma senha" autocomplete="new-password" required></div>
+        <button class="btn btn-primary" type="submit" style="width:100%">Criar minha conta</button>
+      </form>
+
+      <div class="auth-divider">ou</div>
+      <button class="btn btn-google" type="button" id="btnGoogle" style="width:100%">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15A11 11 0 0 0 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+        Continuar com Google
+      </button>
+      <p class="muted small" style="text-align:center;margin-top:14px" id="authModeHint"></p>
+    </div>
+  </div>
+
+  <script src="assets/js/core/utils.js"></script>
+  <script src="assets/js/core/icons.js"></script>
+  <script src="assets/js/core/store.js"></script>
+  <script src="assets/js/core/gamification.js"></script>
+  <script src="assets/js/core/ui.js"></script>
+  <script src="assets/js/core/auth.js"></script>
+  <script src="assets/js/core/sync.js"></script>
+  <script src="assets/js/landing.js"></script>
 </body>
 </html>

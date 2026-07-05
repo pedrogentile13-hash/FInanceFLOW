@@ -1,7 +1,7 @@
 /* ============================================================
    FinanceFlow · core/ui.js
    Tema, cor principal, sidebar, topbar, toast, modal,
-   defaults do Chart.js e paleta.
+   seletor de período, PWA e defaults do Chart.js.
    ============================================================ */
 
 (function (FF) {
@@ -30,6 +30,10 @@
     r.setProperty('--primary-600', dark ? ac.darkP6 : ac.b2);
     r.setProperty('--secondary', dark ? `color-mix(in srgb, ${ac.b} 32%, #131629)` : ac.soft);
     r.setProperty('--secondary-soft', dark ? `color-mix(in srgb, ${ac.b} 18%, #131629)` : ac.softer);
+    // superfícies da sidebar escura derivadas do accent
+    r.setProperty('--side-bg', `color-mix(in srgb, ${ac.a} ${dark ? '52%' : '86%'}, #07091C)`);
+    r.setProperty('--side-bg2', `color-mix(in srgb, ${ac.b} 22%, #0A0D24)`);
+    r.setProperty('--side-active', `color-mix(in srgb, ${ac.b} 38%, transparent)`);
   };
 
   FF.toggleTheme = () => {
@@ -37,22 +41,23 @@
     FF.save();
     FF.applyTheme();
     const b = document.getElementById('themeBtn');
-    if (b) b.textContent = FF.state.settings.theme === 'dark' ? '☀️' : '🌙';
+    if (b) b.innerHTML = FF.icon(FF.state.settings.theme === 'dark' ? 'sun' : 'moon');
     FF.chartDefaults();
     document.dispatchEvent(new CustomEvent('ff:theme'));
   };
 
   /* ---------- toast ---------- */
-  FF.toast = (msg, kind = '', emoji = '💡') => {
+  FF.toast = (msg, kind = '', emoji = '') => {
     let stack = document.querySelector('.toast-stack');
     if (!stack) {
       stack = document.createElement('div');
       stack.className = 'toast-stack';
       document.body.appendChild(stack);
     }
+    const iconName = { success: 'check', error: 'x', xp: 'zap' }[kind] || 'activity';
     const el = document.createElement('div');
     el.className = `toast ${kind}`;
-    el.innerHTML = `<span class="t-emoji">${emoji}</span><span>${msg}</span>`;
+    el.innerHTML = `<span class="t-ic">${FF.icon(iconName, 16)}</span><span>${msg}</span>`;
     stack.appendChild(el);
     setTimeout(() => { el.classList.add('hide'); setTimeout(() => el.remove(), 350); }, 3400);
   };
@@ -66,7 +71,7 @@
       <div class="modal">
         <div class="modal-head">
           <h3>${title}</h3>
-          <button class="modal-close" aria-label="Fechar">✕</button>
+          <button class="modal-close" aria-label="Fechar">${FF.icon('x', 15)}</button>
         </div>
         <div class="modal-body">${body}</div>
         <div class="modal-foot">
@@ -98,24 +103,24 @@
   /* ---------- sidebar ---------- */
   const NAV = () => [
     { label: FF.t('general'), items: [
-      { href: 'dashboard.html', icon: '📊', nome: FF.t('dashboard') },
-      { href: 'entradas.html', icon: '💵', nome: FF.t('in') },
-      { href: 'saidas.html', icon: '💸', nome: FF.t('out') },
+      { href: 'dashboard.html', icon: 'grid', nome: FF.t('dashboard') },
+      { href: 'entradas.html', icon: 'trending-up', nome: FF.t('in') },
+      { href: 'saidas.html', icon: 'trending-down', nome: FF.t('out') },
     ]},
     { label: FF.t('planning'), items: [
-      { href: 'metas.html', icon: '🎯', nome: FF.t('goals') },
-      { href: 'sonhos.html', icon: '✨', nome: FF.t('dreams') },
-      { href: 'investimentos.html', icon: '📈', nome: FF.t('invest') },
-      { href: 'projetos.html', icon: '🏗️', nome: FF.t('projects') },
+      { href: 'metas.html', icon: 'target', nome: FF.t('goals') },
+      { href: 'sonhos.html', icon: 'star', nome: FF.t('dreams') },
+      { href: 'investimentos.html', icon: 'bar-chart', nome: FF.t('invest') },
+      { href: 'projetos.html', icon: 'briefcase', nome: FF.t('projects') },
     ]},
     { label: FF.t('intelligence'), items: [
-      { href: 'estatisticas.html', icon: '📉', nome: FF.t('stats') },
-      { href: 'ia-financeira.html', icon: '🤖', nome: FF.t('ai') },
-      { href: 'simulador.html', icon: '🧮', nome: FF.t('sim') },
-      { href: 'conquistas.html', icon: '🏆', nome: FF.t('achievements') },
+      { href: 'estatisticas.html', icon: 'pie-chart', nome: FF.t('stats') },
+      { href: 'ia-financeira.html', icon: 'cpu', nome: FF.t('ai') },
+      { href: 'simulador.html', icon: 'calculator', nome: FF.t('sim') },
+      { href: 'conquistas.html', icon: 'award', nome: FF.t('achievements') },
     ]},
     { label: FF.t('system'), items: [
-      { href: 'configuracoes.html', icon: '⚙️', nome: FF.t('settings') },
+      { href: 'configuracoes.html', icon: 'settings', nome: FF.t('settings') },
     ]},
   ];
 
@@ -126,7 +131,7 @@
     const session = FF.session();
     el.className = 'sidebar';
     el.innerHTML = `
-      <a class="brand" href="index.html">
+      <a class="brand" href="../index.html">
         <span class="brand-mark">F</span>
         <span class="brand-name">Finance<span>Flow</span></span>
       </a>
@@ -135,20 +140,23 @@
           <div class="nav-label">${sec.label}</div>
           ${sec.items.map(it => `
             <a class="nav-item ${page === it.href ? 'active' : ''}" href="${it.href}">
-              <span>${it.icon}</span> ${it.nome}
+              ${FF.icon(it.icon, 17)} <span>${it.nome}</span>
             </a>`).join('')}
         </div>`).join('')}
       <div class="sidebar-footer">
         <div class="level-chip" id="levelChip"></div>
-        <a class="user-chip" href="${session ? 'configuracoes.html' : 'login.html'}" id="userChip">
-          <span class="uc-avatar">${session ? FF.esc((session.nome || session.email || '?').charAt(0).toUpperCase()) : '👤'}</span>
+        <a class="user-chip" href="${session ? 'configuracoes.html' : '../index.html#conta'}" id="userChip">
+          <span class="uc-avatar">${session ? FF.esc((session.nome || session.email || '?').charAt(0).toUpperCase()) : FF.icon('user', 15)}</span>
           <span class="uc-info">
             <b>${session ? FF.esc(session.nome || session.email) : FF.t('guest')}</b>
             <span>${session ? FF.esc(session.email || '') : FF.t('login')}</span>
           </span>
         </a>
-        <button class="btn btn-ghost btn-sm" id="exportBtn" style="width:100%;margin-bottom:6px">⬇️ ${FF.t('export')}</button>
-        <button class="btn btn-ghost btn-sm" id="importBtn" style="width:100%">⬆️ ${FF.t('import')}</button>
+        <div class="side-actions">
+          <button class="side-btn" id="exportBtn" title="${FF.t('export')}">${FF.icon('download', 15)} <span>Backup</span></button>
+          <button class="side-btn" id="importBtn" title="${FF.t('import')}">${FF.icon('upload', 15)} <span>Restaurar</span></button>
+        </div>
+        <button class="side-btn install-btn" id="installBtn" style="display:none">${FF.icon('smartphone', 15)} <span>Instalar app</span></button>
       </div>`;
 
     const backdrop = document.createElement('div');
@@ -160,6 +168,7 @@
     FF.renderLevelChip();
     document.getElementById('exportBtn').onclick = FF.exportJSON;
     document.getElementById('importBtn').onclick = FF.importJSON;
+    bindInstallButton();
   };
 
   FF.renderLevelChip = () => {
@@ -168,7 +177,7 @@
     const li = FF.levelInfo();
     chip.innerHTML = `
       <div class="lvl-top">
-        <span class="lvl-name">⚡ ${FF.t('level')} ${li.level}</span>
+        <span class="lvl-name">${FF.icon('zap', 13)} ${FF.t('level')} ${li.level}</span>
         <span class="lvl-xp">${li.xp} XP</span>
       </div>
       <div class="progress"><span style="width:${li.progress}%"></span></div>`;
@@ -181,7 +190,7 @@
     el.className = 'topbar';
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:14px">
-        <button class="icon-btn menu-toggle" onclick="__ffToggleSidebar()" aria-label="Menu">☰</button>
+        <button class="icon-btn menu-toggle" onclick="__ffToggleSidebar()" aria-label="Menu">${FF.icon('menu')}</button>
         <div class="page-title">
           <h1>${title}</h1>
           <p>${subtitle}</p>
@@ -189,9 +198,61 @@
       </div>
       <div class="topbar-actions">
         ${actionsHTML}
-        <button class="icon-btn" id="themeBtn" title="Alternar tema">${FF.state.settings.theme === 'dark' ? '☀️' : '🌙'}</button>
+        <button class="icon-btn" id="themeBtn" title="Alternar tema">${FF.icon(FF.state.settings.theme === 'dark' ? 'sun' : 'moon')}</button>
       </div>`;
     document.getElementById('themeBtn').onclick = FF.toggleTheme;
+  };
+
+  /* ---------- seletor de período ---------- */
+  FF.periodSelectorHTML = () => {
+    const cur = FF.state.settings.period || 'month';
+    const opts = [['month', 'Mês'], ['quarter', '3 meses'], ['year', 'Ano'], ['all', 'Tudo']];
+    return `<div class="segmented" id="periodSeg">
+      ${opts.map(([k, l]) => `<button class="${cur === k ? 'active' : ''}" data-period="${k}">${l}</button>`).join('')}
+    </div>`;
+  };
+
+  FF.bindPeriodSelector = (onChange) => {
+    const seg = document.getElementById('periodSeg');
+    if (!seg) return;
+    seg.querySelectorAll('[data-period]').forEach(b => b.onclick = () => {
+      FF.state.settings.period = b.dataset.period;
+      FF.save();
+      if (onChange) onChange(b.dataset.period);
+      else location.reload();
+    });
+  };
+
+  /* ---------- PWA: instalação e service worker ---------- */
+  let deferredInstall = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstall = e;
+    bindInstallButton();
+  });
+
+  function bindInstallButton() {
+    const btn = document.getElementById('installBtn');
+    if (!btn || !deferredInstall) return;
+    btn.style.display = '';
+    btn.onclick = async () => {
+      deferredInstall.prompt();
+      const { outcome } = await deferredInstall.userChoice;
+      if (outcome === 'accepted') { btn.style.display = 'none'; FF.toast('FinanceFlow instalado!', 'success'); }
+      deferredInstall = null;
+    };
+  }
+
+  FF.registerSW = (path = '../sw.js') => {
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.register(path).catch(() => { /* file:// ou http simples */ });
+    // recarrega quando uma nova versão assume o controle (atualização em tempo real)
+    let refreshed = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshed) return;
+      refreshed = true;
+      location.reload();
+    });
   };
 
   /* ---------- Chart.js ---------- */

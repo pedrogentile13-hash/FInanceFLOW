@@ -32,12 +32,15 @@
     return sbClient;
   };
 
+  // prefixo relativo: páginas do app vivem em /pages, a landing na raiz
+  const root = () => (location.pathname.includes('/pages/') ? '../' : '');
+
   // carrega o SDK local só quando há configuração (evita 250KB à toa)
   FF.loadSupabaseSDK = () => new Promise((resolve) => {
     if (!FF.supabaseConfig()) return resolve(false);
     if (typeof window.supabase !== 'undefined') return resolve(true);
     const s = document.createElement('script');
-    s.src = 'assets/vendor/supabase.js';
+    s.src = root() + 'assets/vendor/supabase.js';
     s.onload = () => resolve(true);
     s.onerror = () => resolve(false);
     document.head.appendChild(s);
@@ -91,17 +94,15 @@
     const users = localUsers();
     if (users.some(u => u.email === email)) return { ok: false, error: 'Este e-mail já possui conta.' };
     const salt = FF.uid();
-    const recoveryCode = (FF.uid() + FF.uid()).slice(0, 12).toUpperCase();
     users.push({
       id: FF.uid(), nome, email, salt,
       hash: await hash(salt + password),
-      recoveryHash: await hash(salt + recoveryCode),
       createdAt: Date.now(),
     });
     saveLocalUsers(users);
     const u = users[users.length - 1];
     FF.setSession({ userId: u.id, email, nome, provider: 'local' });
-    return { ok: true, recoveryCode };
+    return { ok: true };
   };
 
   // login → {ok} | {ok:false, error}
@@ -134,35 +135,9 @@
     if (!sb) return { ok: false, error: 'SDK do Supabase indisponível.' };
     const { error } = await sb.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: location.origin + location.pathname.replace(/[^/]*$/, 'login.html') },
+      options: { redirectTo: location.origin + location.pathname.replace(/pages\/[^/]*$|[^/]*$/, 'index.html') + '#conta' },
     });
     return error ? { ok: false, error: error.message } : { ok: true, redirect: true };
-  };
-
-  // recuperação de senha
-  FF.recoverPassword = async ({ email, recoveryCode, newPassword }) => {
-    email = normEmail(email);
-
-    if (FF.authMode() === 'supabase') {
-      const sb = FF.supabase();
-      if (!sb) return { ok: false, error: 'SDK do Supabase indisponível.' };
-      const { error } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: location.origin + location.pathname.replace(/[^/]*$/, 'login.html'),
-      });
-      return error ? { ok: false, error: error.message }
-        : { ok: true, message: 'Enviamos um link de recuperação para o seu e-mail.' };
-    }
-
-    if (!newPassword || newPassword.length < 6) return { ok: false, error: 'A nova senha precisa de 6+ caracteres.' };
-    const users = localUsers();
-    const u = users.find(x => x.email === email);
-    if (!u) return { ok: false, error: 'Conta não encontrada.' };
-    if (await hash(u.salt + String(recoveryCode || '').trim().toUpperCase()) !== u.recoveryHash) {
-      return { ok: false, error: 'Código de recuperação inválido.' };
-    }
-    u.hash = await hash(u.salt + newPassword);
-    saveLocalUsers(users);
-    return { ok: true, message: 'Senha redefinida! Faça login com a nova senha.' };
   };
 
   FF.logout = async () => {
@@ -171,7 +146,7 @@
       if (sb) await sb.auth.signOut();
     }
     FF.setSession(null);
-    location.href = 'login.html';
+    location.href = root() + 'index.html#conta';
   };
 
   FF.updateProfile = ({ nome }) => {

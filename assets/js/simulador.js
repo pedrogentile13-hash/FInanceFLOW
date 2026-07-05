@@ -35,7 +35,7 @@
       const aportado = porMes * m;
       return `
         <div class="kpi">
-          <div class="kpi-head"><span class="kpi-label">${nomes[i]}</span><span class="kpi-icon green">💰</span></div>
+          <div class="kpi-head"><span class="kpi-label">${nomes[i]}</span><span class="kpi-icon green">${FF.icon('wallet')}</span></div>
           <div class="kpi-value" style="font-size:19px">${FF.money(v)}</div>
           <div class="kpi-sub">${juros > 0 ? `+${FF.money(v - aportado)} em juros` : `${FF.money(aportado)} aportados`}</div>
         </div>`;
@@ -96,14 +96,14 @@
       : ['green', '✅', 'Compra confortável para o seu patrimônio atual.'];
 
     document.getElementById('buyResults').innerHTML = `
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">% do patrimônio</span><span class="kpi-icon ${nivel[0]}">${nivel[1]}</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">% do patrimônio</span><span class="kpi-icon ${nivel[0]}">${FF.icon('shopping-bag')}</span></div>
         <div class="kpi-value">${FF.pct(pctPatr)}</div><div class="kpi-sub">${nome}: ${FF.money(valor)}</div></div>
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Quanto sobra</span><span class="kpi-icon ${sobra >= 0 ? '' : 'red'}">💳</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Quanto sobra</span><span class="kpi-icon ${sobra >= 0 ? '' : 'red'}">${FF.icon('credit-card')}</span></div>
         <div class="kpi-value ${sobra >= 0 ? '' : 'text-danger'}">${FF.money(sobra)}</div><div class="kpi-sub">Patrimônio: ${FF.money(patr)}</div></div>
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Dias de economia</span><span class="kpi-icon amber">📅</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Dias de economia</span><span class="kpi-icon amber">${FF.icon('calendar')}</span></div>
         <div class="kpi-value">${diasEco !== null ? diasEco + ' dias' : '—'}</div>
         <div class="kpi-sub">${diasEco !== null ? 'No seu ritmo médio atual' : 'Sem ritmo de economia detectado'}</div></div>
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Impacto na meta</span><span class="kpi-icon">🎯</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Impacto na meta</span><span class="kpi-icon ">${FF.icon('target')}</span></div>
         <div class="kpi-value" style="font-size:19px">${meta ? (atrasoMeta !== null ? `+${atrasoMeta} dias` : '—') : '—'}</div>
         <div class="kpi-sub">${meta ? `Atraso estimado em "${meta.nome}"` : 'Nenhuma meta ativa'}</div></div>`;
 

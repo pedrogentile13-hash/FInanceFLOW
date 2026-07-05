@@ -16,5 +16,6 @@
     FF.chartDefaults();
     document.addEventListener('ff:theme', FF.chartDefaults);
     FF.initSync(); // no-op sem Supabase configurado
+    FF.registerSW();
   };
 })(window.FF);

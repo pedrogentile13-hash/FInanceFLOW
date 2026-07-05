@@ -6,16 +6,18 @@
   FF.init({
     title: 'Dashboard',
     subtitle: 'Visão executiva das suas finanças',
-    actions: `<a class="btn btn-primary" href="entradas.html">＋ Lançamento</a>`,
+    actions: `${FF.periodSelectorHTML()}<a class="btn btn-primary" href="entradas.html">+ Lançamento</a>`,
   });
+  FF.bindPeriodSelector();
 
   const S = FF.state;
   const now = new Date();
   const t = FF.totals();
   const patrimonio = FF.patrimonio();
-  const mNow = FF.totals(FF.txMonth(now.getFullYear(), now.getMonth()));
-  const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const mPrev = FF.totals(FF.txMonth(prev.getFullYear(), prev.getMonth()));
+  // período de visualização escolhido pelo usuário (mês / 3 meses / ano / tudo)
+  const mNow = FF.totals(FF.periodTx(0));
+  const mPrev = FF.totals(FF.periodTx(-1));
+  const perLabel = FF.periodLabel();
 
   const economia = mNow.in > 0 ? ((mNow.in - mNow.out) / mNow.in) * 100 : 0;
   const projRec = S.projetos.reduce((s, p) => s + FF.projTotals(p).receita, 0);
@@ -29,48 +31,48 @@
     if (!old) return '';
     const d = ((cur - old) / old) * 100;
     const cls = d >= 0 ? 'up' : 'down';
-    return `<span class="${cls}">${d >= 0 ? '▲' : '▼'} ${Math.abs(d).toFixed(1)}%</span> vs mês anterior`;
+    return `<span class="${cls}">${d >= 0 ? '▲' : '▼'} ${Math.abs(d).toFixed(1)}%</span> vs período anterior`;
   };
 
   /* ---------- KPIs ---------- */
   document.getElementById('kpis').innerHTML = `
     <div class="kpi">
-      <div class="kpi-head"><span class="kpi-label">Patrimônio Atual</span><span class="kpi-icon">🏦</span></div>
+      <div class="kpi-head"><span class="kpi-label">Patrimônio Atual</span><span class="kpi-icon ">${FF.icon('landmark')}</span></div>
       <div class="kpi-value">${FF.money(patrimonio)}</div>
       <div class="kpi-sub">Saldo + investimentos</div>
     </div>
     <div class="kpi">
-      <div class="kpi-head"><span class="kpi-label">Saldo Disponível</span><span class="kpi-icon green">💳</span></div>
+      <div class="kpi-head"><span class="kpi-label">Saldo Disponível</span><span class="kpi-icon green">${FF.icon('credit-card')}</span></div>
       <div class="kpi-value">${FF.money(t.saldo)}</div>
       <div class="kpi-sub">Entradas − saídas</div>
     </div>
     <div class="kpi">
-      <div class="kpi-head"><span class="kpi-label">Entradas do Mês</span><span class="kpi-icon green">💵</span></div>
+      <div class="kpi-head"><span class="kpi-label">Entradas ${perLabel}</span><span class="kpi-icon green">${FF.icon('trending-up')}</span></div>
       <div class="kpi-value text-success">${FF.money(mNow.in)}</div>
       <div class="kpi-sub">${delta(mNow.in, mPrev.in) || 'Sem histórico anterior'}</div>
     </div>
     <div class="kpi">
-      <div class="kpi-head"><span class="kpi-label">Saídas do Mês</span><span class="kpi-icon red">💸</span></div>
+      <div class="kpi-head"><span class="kpi-label">Saídas ${perLabel}</span><span class="kpi-icon red">${FF.icon('trending-down')}</span></div>
       <div class="kpi-value text-danger">${FF.money(mNow.out)}</div>
       <div class="kpi-sub">${delta(mNow.out, mPrev.out) || 'Sem histórico anterior'}</div>
     </div>
     <div class="kpi">
-      <div class="kpi-head"><span class="kpi-label">Economia do Mês</span><span class="kpi-icon amber">🌱</span></div>
+      <div class="kpi-head"><span class="kpi-label">Economia ${perLabel}</span><span class="kpi-icon amber">${FF.icon('percent')}</span></div>
       <div class="kpi-value">${FF.pct(economia)}</div>
       <div class="kpi-sub">${FF.money(mNow.saldo)} guardados</div>
     </div>
     <div class="kpi">
-      <div class="kpi-head"><span class="kpi-label">Receita dos Projetos</span><span class="kpi-icon">🏗️</span></div>
+      <div class="kpi-head"><span class="kpi-label">Receita dos Projetos</span><span class="kpi-icon ">${FF.icon('briefcase')}</span></div>
       <div class="kpi-value">${FF.money(projRec)}</div>
       <div class="kpi-sub">${S.projetos.length} projeto${S.projetos.length === 1 ? '' : 's'} ativos</div>
     </div>
     <div class="kpi">
-      <div class="kpi-head"><span class="kpi-label">Meta Principal</span><span class="kpi-icon amber">🎯</span></div>
+      <div class="kpi-head"><span class="kpi-label">Meta Principal</span><span class="kpi-icon amber">${FF.icon('target')}</span></div>
       <div class="kpi-value">${metaPrincipal ? FF.pct((metaPrincipal.atual / metaPrincipal.objetivo) * 100) : '—'}</div>
       <div class="kpi-sub">${metaPrincipal ? metaPrincipal.nome : 'Crie sua primeira meta'}</div>
     </div>
     <div class="kpi">
-      <div class="kpi-head"><span class="kpi-label">Nível Financeiro</span><span class="kpi-icon">⚡</span></div>
+      <div class="kpi-head"><span class="kpi-label">Nível Financeiro</span><span class="kpi-icon ">${FF.icon('zap')}</span></div>
       <div class="kpi-value">Nível ${li.level}</div>
       <div class="kpi-sub">${li.xp} XP acumulados</div>
     </div>`;
@@ -177,7 +179,7 @@
   const last = [...S.transactions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6);
   document.getElementById('lastTx').innerHTML = last.length ? last.map(tx => `
     <div class="list-item">
-      <span class="li-icon">${tx.type === 'in' ? '💵' : '💸'}</span>
+      <span class="li-icon">${FF.icon(tx.type === 'in' ? 'trending-up' : 'trending-down', 15)}</span>
       <div class="li-main"><b>${esc(tx.desc)}</b><span>${esc(tx.category)} · ${FF.dateBR(tx.date)}</span></div>
       <span class="li-value ${tx.type === 'in' ? 'text-success' : 'text-danger'}">${tx.type === 'in' ? '+' : '−'} ${FF.money(tx.value)}</span>
     </div>`).join('')
@@ -212,8 +214,8 @@
 
   /* ---------- Resumo inteligente ---------- */
   const resumo = [];
-  if (mNow.saldo > 0) resumo.push(`Você está no <b class="text-success">verde</b> este mês: economizou <b>${FF.money(mNow.saldo)}</b> (${FF.pct(economia)} da receita).`);
-  else if (mNow.out > 0) resumo.push(`Atenção: suas saídas superam as entradas em <b class="text-danger">${FF.money(-mNow.saldo)}</b> este mês.`);
+  if (mNow.saldo > 0) resumo.push(`Você está no <b class="text-success">verde</b> ${perLabel === 'de todo o período' ? 'no total' : perLabel.replace('do ', 'neste ').replace('dos ', 'nestes ')}: economizou <b>${FF.money(mNow.saldo)}</b> (${FF.pct(economia)} da receita).`);
+  else if (mNow.out > 0) resumo.push(`Atenção: suas saídas superam as entradas em <b class="text-danger">${FF.money(-mNow.saldo)}</b> no período.`);
   const topCat = FF.byCategory('out')[0];
   if (topCat) resumo.push(`Sua categoria de gasto dominante é <b>${topCat[0]}</b>, com ${FF.money(topCat[1])} no total.`);
   const streak = FF.savingStreak();

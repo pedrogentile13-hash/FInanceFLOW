@@ -6,7 +6,7 @@
   FF.init({
     title: 'Investimentos',
     subtitle: 'Sua carteira trabalhando por você',
-    actions: `<button class="btn btn-primary" id="newInv">＋ Novo investimento</button>`,
+    actions: `<button class="btn btn-primary" id="newInv">+ Novo investimento</button>`,
   });
   document.getElementById('newInv').onclick = () => openForm();
 
@@ -33,14 +33,14 @@
     const rentab = investido > 0 ? (rendimento / investido) * 100 : 0;
 
     document.getElementById('kpis').innerHTML = `
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Total investido</span><span class="kpi-icon">💼</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Total investido</span><span class="kpi-icon ">${FF.icon('briefcase')}</span></div>
         <div class="kpi-value">${FF.money(investido)}</div><div class="kpi-sub">${invs.length} aplicações</div></div>
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Valor atual (simulado)</span><span class="kpi-icon green">📈</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Valor atual (simulado)</span><span class="kpi-icon green">${FF.icon('trending-up')}</span></div>
         <div class="kpi-value">${FF.money(atual)}</div><div class="kpi-sub">Com juros compostos</div></div>
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Rendimento acumulado</span><span class="kpi-icon ${rendimento >= 0 ? 'green' : 'red'}">💹</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Rendimento acumulado</span><span class="kpi-icon ${rendimento >= 0 ? 'green' : 'red'}">${FF.icon('activity')}</span></div>
         <div class="kpi-value ${rendimento >= 0 ? 'text-success' : 'text-danger'}">${FF.money(rendimento)}</div>
         <div class="kpi-sub">Simulação pela taxa informada</div></div>
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Rentabilidade</span><span class="kpi-icon amber">🎚️</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Rentabilidade</span><span class="kpi-icon amber">${FF.icon('percent')}</span></div>
         <div class="kpi-value">${FF.pct(rentab)}</div><div class="kpi-sub">Sobre o capital investido</div></div>`;
 
     // tabela
@@ -60,8 +60,8 @@
           <td class="td-value-in">${FF.money(va)}</td>
           <td class="muted">${esc(i.obs || '—')}</td>
           <td class="td-actions">
-            <button class="row-btn" data-edit="${i.id}">✏️</button>
-            <button class="row-btn del" data-del="${i.id}">🗑️</button>
+            <button class="row-btn" data-edit="${i.id}">${FF.icon('pencil', 14)}</button>
+            <button class="row-btn del" data-del="${i.id}">${FF.icon('trash', 14)}</button>
           </td>
         </tr>`;
       }).join('');

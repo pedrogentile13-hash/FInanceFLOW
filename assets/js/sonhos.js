@@ -6,7 +6,7 @@
   FF.init({
     title: 'Sonhos',
     subtitle: 'O painel visual do seu futuro',
-    actions: `<button class="btn btn-primary" id="newDream">＋ Novo sonho</button>`,
+    actions: `<button class="btn btn-primary" id="newDream">+ Novo sonho</button>`,
   });
   document.getElementById('newDream').onclick = () => openForm();
 
@@ -31,15 +31,15 @@
     const media = mediaEconomiaMensal();
 
     document.getElementById('kpis').innerHTML = `
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Sonhos cadastrados</span><span class="kpi-icon">✨</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Sonhos cadastrados</span><span class="kpi-icon ">${FF.icon('star')}</span></div>
         <div class="kpi-value">${sonhos.length}</div>
         <div class="kpi-sub">${sonhos.filter(d => d.acumulado >= d.valor).length} realizados</div></div>
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Custo total dos sonhos</span><span class="kpi-icon amber">🌠</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Custo total dos sonhos</span><span class="kpi-icon amber">${FF.icon('star')}</span></div>
         <div class="kpi-value">${FF.money(totalValor)}</div><div class="kpi-sub">Somatório de tudo</div></div>
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Já acumulado</span><span class="kpi-icon green">💰</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Já acumulado</span><span class="kpi-icon green">${FF.icon('wallet')}</span></div>
         <div class="kpi-value">${FF.money(totalAcum)}</div>
         <div class="kpi-sub">${totalValor ? FF.pct((totalAcum / totalValor) * 100) : '0%'} realizados</div></div>
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Ritmo de economia</span><span class="kpi-icon">🚀</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Ritmo de economia</span><span class="kpi-icon ">${FF.icon('trending-up')}</span></div>
         <div class="kpi-value">${FF.money(media)}/mês</div><div class="kpi-sub">Média dos últimos 3 meses</div></div>`;
 
     const grid = document.getElementById('dreamsGrid');
@@ -75,10 +75,10 @@
               <div class="flex-between"><span>Previsão</span><b>${previsao}</b></div>
             </div>
             <div class="flex-between" style="margin-top:auto">
-              <button class="btn btn-ghost btn-sm" data-add="${d.id}">💰 Guardar</button>
+              <button class="btn btn-ghost btn-sm" data-add="${d.id}">Guardar</button>
               <div class="td-actions">
-                <button class="row-btn" data-edit="${d.id}">✏️</button>
-                <button class="row-btn del" data-del="${d.id}">🗑️</button>
+                <button class="row-btn" data-edit="${d.id}">${FF.icon('pencil', 14)}</button>
+                <button class="row-btn del" data-del="${d.id}">${FF.icon('trash', 14)}</button>
               </div>
             </div>
           </div>

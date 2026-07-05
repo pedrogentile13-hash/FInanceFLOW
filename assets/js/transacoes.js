@@ -18,7 +18,7 @@ const TX = (() => {
     FF.init({
       title: isIn ? 'Entradas' : 'Saídas',
       subtitle: isIn ? 'Todo dinheiro que entra na sua vida' : 'Controle total sobre seus gastos',
-      actions: `<button class="btn btn-primary" id="newTxBtn">＋ Nova ${isIn ? 'entrada' : 'saída'}</button>`,
+      actions: `<button class="btn btn-primary" id="newTxBtn">+ Nova ${isIn ? 'entrada' : 'saída'}</button>`,
     });
     document.getElementById('newTxBtn').onclick = () => openForm();
     buildFilters();
@@ -38,7 +38,7 @@ const TX = (() => {
     const el = document.getElementById('filters');
     const months = [...new Set(FF.state.transactions.filter(t => t.type === type).map(t => t.date.slice(0, 7)))].sort().reverse();
     el.innerHTML = `
-      <input type="search" id="fQ" placeholder="🔎 Buscar descrição…" style="min-width:200px">
+      <input type="search" id="fQ" placeholder="Buscar descrição…" style="min-width:200px">
       <select id="fCat">
         <option value="">Todas as categorias</option>
         ${cats().map(c => `<option>${FF.esc(c)}</option>`).join('')}
@@ -74,22 +74,22 @@ const TX = (() => {
     document.getElementById('kpis').innerHTML = `
       <div class="kpi">
         <div class="kpi-head"><span class="kpi-label">Total ${isIn ? 'recebido' : 'gasto'} (filtro)</span>
-          <span class="kpi-icon ${isIn ? 'green' : 'red'}">${isIn ? '💵' : '💸'}</span></div>
+          <span class="kpi-icon ${isIn ? 'green' : 'red'}">${FF.icon(isIn ? 'trending-up' : 'trending-down')}</span></div>
         <div class="kpi-value ${isIn ? 'text-success' : 'text-danger'}">${FF.money(total)}</div>
         <div class="kpi-sub">${rows.length} lançamento${rows.length === 1 ? '' : 's'}</div>
       </div>
       <div class="kpi">
-        <div class="kpi-head"><span class="kpi-label">Este mês</span><span class="kpi-icon">📅</span></div>
+        <div class="kpi-head"><span class="kpi-label">Este mês</span><span class="kpi-icon ">${FF.icon('calendar')}</span></div>
         <div class="kpi-value">${FF.money(monthTotal)}</div>
         <div class="kpi-sub">${monthRows.length} lançamentos em ${FF.monthName(now.getMonth())}</div>
       </div>
       <div class="kpi">
-        <div class="kpi-head"><span class="kpi-label">Média por lançamento</span><span class="kpi-icon amber">⚖️</span></div>
+        <div class="kpi-head"><span class="kpi-label">Média por lançamento</span><span class="kpi-icon amber">${FF.icon('activity')}</span></div>
         <div class="kpi-value">${FF.money(avg)}</div>
         <div class="kpi-sub">Ticket médio</div>
       </div>
       <div class="kpi">
-        <div class="kpi-head"><span class="kpi-label">Maior valor</span><span class="kpi-icon">🏔️</span></div>
+        <div class="kpi-head"><span class="kpi-label">Maior valor</span><span class="kpi-icon ">${FF.icon('trending-up')}</span></div>
         <div class="kpi-value">${FF.money(max)}</div>
         <div class="kpi-sub">Recorde do filtro atual</div>
       </div>`;
@@ -101,7 +101,7 @@ const TX = (() => {
         <div class="empty">
           <div class="e-icon">${isIn ? '💵' : '💸'}</div>
           <h4>Nenhum lançamento encontrado</h4>
-          <p>Clique em "＋ Nova ${isIn ? 'entrada' : 'saída'}" para começar.</p>
+          <p>Clique em "+ Nova ${isIn ? 'entrada' : 'saída'}" para começar.</p>
         </div></td></tr>`;
     } else {
       tbody.innerHTML = rows.map(t => `
@@ -112,8 +112,8 @@ const TX = (() => {
           <td>${esc(t.method || '—')}</td>
           <td class="${isIn ? 'td-value-in' : 'td-value-out'}">${isIn ? '+' : '−'} ${FF.money(t.value)}</td>
           <td class="td-actions">
-            <button class="row-btn" data-edit="${t.id}" title="Editar">✏️</button>
-            <button class="row-btn del" data-del="${t.id}" title="Excluir">🗑️</button>
+            <button class="row-btn" data-edit="${t.id}" title="Editar">${FF.icon('pencil', 14)}</button>
+            <button class="row-btn del" data-del="${t.id}" title="Excluir">${FF.icon('trash', 14)}</button>
           </td>
         </tr>`).join('');
       tbody.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openForm(b.dataset.edit));

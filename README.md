@@ -20,14 +20,17 @@ Sistema operacional completo para gestão financeira pessoal, metas, sonhos, pro
 | `ia-financeira.html` | Motor de insights por regras (100% local), detector de gastos inúteis, resumos e chat |
 | `conquistas.html` | Gamificação: XP, níveis, missões e 20 conquistas |
 | `configuracoes.html` | Central completa: tema, cor principal, idioma/moeda/data, CRUD de categorias, backup, reset e conexão com a nuvem |
-| `login.html` | Login, cadastro, recuperação de senha e login com Google (via Supabase) |
+| `index.html` | Landing page com login e criação de conta integrados (modal) |
 
 ## 🛠️ Stack
 
 - **HTML5 + CSS3 + Vanilla JS** — zero frameworks, zero build
+- **PWA instalável** — prompt "Instalar app" no navegador, funciona offline e
+  atualiza em tempo real via service worker
 - **Chart.js** e **fonte Inter** embutidos (funciona 100% offline)
 - **LocalStorage** por padrão; **Supabase** opcional para nuvem
-- Modo claro/escuro, 6 cores de destaque, mobile-first, backup JSON
+- Visualização por período (mês, 3 meses, ano ou tudo) no dashboard e estatísticas
+- Modo claro/escuro, 6 cores de destaque, ícones SVG profissionais, mobile-first
 
 ## ☁️ Nuvem e autenticação (opcional)
 
@@ -65,7 +68,9 @@ Na primeira visita o sistema carrega dados de demonstração; use os botões **E
 ## 📁 Estrutura
 
 ```
-index.html … login.html        páginas
+index.html                     landing + autenticação (modal)
+pages/                         todas as páginas do app
+manifest.webmanifest, sw.js    PWA (instalação + offline + atualização)
 assets/
   css/style.css                design system (tokens, dark mode, componentes, animações)
   js/core/
@@ -77,8 +82,10 @@ assets/
     sync.js                    sincronização em nuvem (Supabase)
   js/app.js                    compositor: inicialização de página
   js/<página>.js               lógica de cada módulo
+  js/core/icons.js             biblioteca de ícones SVG
   vendor/                      Chart.js e Supabase SDK locais
   fonts/                       Inter (woff2)
+  icons/                       ícones do PWA
 supabase/schema.sql            tabela + RLS + realtime para a nuvem
 docs/PLANO-V1.md               plano de implementação da v1.0
 ```

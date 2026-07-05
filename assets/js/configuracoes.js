@@ -11,6 +11,27 @@
 
   const S = FF.state.settings;
 
+  /* ================= Navegação lateral (janela única) ================= */
+  const PANELS = [
+    ['perfil', 'user', 'Perfil'],
+    ['aparencia', 'settings', 'Aparência'],
+    ['categorias', 'tag', 'Categorias'],
+    ['sistema', 'database', 'Sistema'],
+    ['nuvem', 'cloud', 'Nuvem'],
+  ];
+  const nav = document.getElementById('settingsNav');
+  nav.innerHTML = PANELS.map(([id, ic, label]) =>
+    `<button data-goto="${id}">${FF.icon(ic, 16)} <span>${label}</span></button>`).join('');
+
+  function showPanel(id) {
+    document.querySelectorAll('[data-panel]').forEach(p => p.hidden = p.dataset.panel !== id);
+    nav.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.goto === id));
+    history.replaceState(null, '', '#' + id);
+  }
+  nav.querySelectorAll('button').forEach(b => b.onclick = () => showPanel(b.dataset.goto));
+  showPanel(['perfil', 'aparencia', 'categorias', 'sistema', 'nuvem'].includes(location.hash.slice(1))
+    ? location.hash.slice(1) : 'perfil');
+
   /* ================= Perfil ================= */
   function renderProfile() {
     const session = FF.session();
@@ -30,7 +51,7 @@
         </div>
         <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
           <button class="btn btn-primary btn-sm" id="btnSaveProfile">Salvar perfil</button>
-          <button class="btn btn-danger btn-sm" id="btnLogout">🚪 Sair da conta</button>
+          <button class="btn btn-danger btn-sm" id="btnLogout">Sair da conta</button>
         </div>`;
       document.getElementById('btnSaveProfile').onclick = () => {
         const nome = document.getElementById('profNome').value.trim();
@@ -45,7 +66,7 @@
       box.innerHTML = `
         <p class="muted" style="margin-bottom:14px">Você está usando o FinanceFlow como <b>visitante</b>.
         Crie uma conta para proteger seus dados com senha e habilitar a sincronização em nuvem.</p>
-        <a class="btn btn-primary btn-sm" href="login.html">Entrar / Criar conta →</a>`;
+        <a class="btn btn-primary btn-sm" href="../index.html#conta">Entrar / Criar conta</a>`;
     }
   }
   renderProfile();
@@ -65,6 +86,7 @@
   bind('setLocale', 'locale', () => { FF.renderSidebar(); });
   bind('setCurrency', 'currency');
   bind('setDateFormat', 'dateFormat');
+  bind('setPeriod', 'period');
 
   function renderSwatches() {
     const wrap = document.getElementById('accentSwatches');
@@ -94,8 +116,8 @@
           <span class="cat-icon" style="background:color-mix(in srgb, ${c.cor} 14%, transparent)">${c.icone}</span>
           <b>${FF.esc(c.nome)}</b>
           <span class="cat-dot" style="background:${c.cor}"></span>
-          <button class="row-btn" data-edit="${type}:${c.id}" title="Editar">✏️</button>
-          <button class="row-btn del" data-del="${type}:${c.id}" title="Excluir">🗑️</button>
+          <button class="row-btn" data-edit="${type}:${c.id}" title="Editar">${FF.icon('pencil', 14)}</button>
+          <button class="row-btn del" data-del="${type}:${c.id}" title="Excluir">${FF.icon('trash', 14)}</button>
         </div>`).join('') || '<div class="empty"><div class="e-icon">🏷️</div><h4>Nenhuma categoria</h4></div>';
     }
     document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => {
@@ -165,6 +187,18 @@
   renderCats();
 
   /* ================= Sistema ================= */
+  const installBtn = document.getElementById('btnInstallCfg');
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    installBtn.disabled = false;
+    installBtn.textContent = 'Instalar agora';
+    installBtn.onclick = async () => {
+      e.prompt();
+      const { outcome } = await e.userChoice;
+      if (outcome === 'accepted') { installBtn.textContent = 'Instalado'; installBtn.disabled = true; }
+    };
+  });
+
   document.getElementById('btnExport').onclick = FF.exportJSON;
   document.getElementById('btnImport').onclick = FF.importJSON;
   document.getElementById('btnReset').onclick = () =>

@@ -7,7 +7,7 @@
   FF.init({
     title: 'Projetos',
     subtitle: 'Cada projeto é um negócio — trate como um',
-    actions: `<button class="btn btn-primary" id="newProj">＋ Novo projeto</button>`,
+    actions: `<button class="btn btn-primary" id="newProj">+ Novo projeto</button>`,
   });
   document.getElementById('newProj').onclick = () => openForm();
 
@@ -51,17 +51,17 @@
     const ticket = tot.cli > 0 ? tot.rec / tot.cli : 0;
 
     document.getElementById('kpis').innerHTML = `
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Receita Total</span><span class="kpi-icon green">💵</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Receita Total</span><span class="kpi-icon green">${FF.icon('trending-up')}</span></div>
         <div class="kpi-value text-success">${FF.money(tot.rec)}</div><div class="kpi-sub">Todos os projetos</div></div>
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Lucro Líquido</span><span class="kpi-icon ${tot.lucro >= 0 ? 'green' : 'red'}">💰</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Lucro Líquido</span><span class="kpi-icon ${tot.lucro >= 0 ? 'green' : 'red'}">${FF.icon('wallet')}</span></div>
         <div class="kpi-value ${tot.lucro >= 0 ? 'text-success' : 'text-danger'}">${FF.money(tot.lucro)}</div>
         <div class="kpi-sub">Custos: ${FF.money(tot.cus)}</div></div>
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">MRR</span><span class="kpi-icon">📈</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">MRR</span><span class="kpi-icon ">${FF.icon('trending-up')}</span></div>
         <div class="kpi-value">${FF.money(_mrr)}</div><div class="kpi-sub">ARR: ${FF.money(_mrr * 12)}</div></div>
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Runway</span><span class="kpi-icon amber">🛫</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Runway</span><span class="kpi-icon amber">${FF.icon('clock')}</span></div>
         <div class="kpi-value">${runway === Infinity ? '∞' : runway.toFixed(1) + ' meses'}</div>
         <div class="kpi-sub">Patrimônio ÷ burn mensal</div></div>
-      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Clientes</span><span class="kpi-icon">👥</span></div>
+      <div class="kpi"><div class="kpi-head"><span class="kpi-label">Clientes</span><span class="kpi-icon ">${FF.icon('users')}</span></div>
         <div class="kpi-value">${tot.cli}</div><div class="kpi-sub">Ticket médio: ${FF.money(ticket)}</div></div>`;
 
     // cards de projetos
@@ -91,11 +91,11 @@
               <span>Margem: <b>${FF.pct(margem)}</b></span>
             </div>
             <div class="flex-between">
-              <button class="btn btn-ghost btn-sm" data-lanc="${p.id}">＋ Lançamento</button>
+              <button class="btn btn-ghost btn-sm" data-lanc="${p.id}">+ Lançamento</button>
               <div class="td-actions">
-                <button class="row-btn" data-view="${p.id}" title="Ver lançamentos">📋</button>
-                <button class="row-btn" data-edit="${p.id}" title="Editar">✏️</button>
-                <button class="row-btn del" data-del="${p.id}" title="Excluir">🗑️</button>
+                <button class="row-btn" data-view="${p.id}" title="Ver lançamentos">${FF.icon('layers', 14)}</button>
+                <button class="row-btn" data-edit="${p.id}" title="Editar">${FF.icon('pencil', 14)}</button>
+                <button class="row-btn del" data-del="${p.id}" title="Excluir">${FF.icon('trash', 14)}</button>
               </div>
             </div>
           </div>`;
@@ -174,7 +174,7 @@
               <td>${FF.dateBR(l.data)}</td>
               <td>${esc(l.desc)}</td>
               <td class="${l.tipo === 'receita' ? 'td-value-in' : 'td-value-out'}">${l.tipo === 'receita' ? '+' : '−'} ${FF.money(l.valor)}</td>
-              <td><button class="row-btn del" data-ldel="${l.id}">🗑️</button></td>
+              <td><button class="row-btn del" data-ldel="${l.id}">${FF.icon('trash', 14)}</button></td>
             </tr>`).join('')}</tbody>
         </table></div>`
         : `<div class="empty"><div class="e-icon">📋</div><h4>Sem lançamentos</h4></div>`,
