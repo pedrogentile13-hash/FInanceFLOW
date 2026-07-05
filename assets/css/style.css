@@ -1081,3 +1081,49 @@ table.ff-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 .card .ff-table th { background: color-mix(in srgb, var(--bg) 60%, var(--card)); }
 .card .ff-table th:first-child { border-top-left-radius: 8px; }
 .card .ff-table th:last-child { border-top-right-radius: 8px; }
+
+/* ============================================================
+   v1.2 — Correções de responsividade mobile
+   ============================================================ */
+
+/* Card/kpi/etc. são itens de grid; sem min-width:0 o conteúdo
+   largo (tabelas, listas) força o item — e a página inteira —
+   a ficar mais larga que a viewport. Este é o principal motivo
+   de páginas como Entradas/Saídas "não caberem" no celular. */
+.card, .kpi, .dream-card, .ach, .feature {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  /* topbar-actions não quebrava linha: com período + botão + tema
+     juntos, ultrapassava a largura da tela e alargava a página. */
+  .topbar-actions { flex-wrap: wrap; justify-content: flex-end; row-gap: 8px; }
+}
+
+@media (max-width: 820px) {
+  /* .settings-shell tinha min-height:560px pensado para o layout
+     lado a lado do desktop; no mobile (nav e painel empilhados)
+     isso inflava a barra de abas para uma altura enorme. */
+  .settings-shell { min-height: 0; }
+  .settings-nav { align-items: center; }
+}
+
+.nav-actions { display: flex; gap: 10px; align-items: center; }
+
+@media (max-width: 480px) {
+  /* nav da landing: tema + Instalar app + Entrar + Criar conta não
+     cabiam ao lado da marca. Simplifica para uma única call-to-action
+     (Entrar continua acessível pela aba dentro do modal de cadastro). */
+  .lp-nav { padding: 14px 16px; }
+  .nav-actions { gap: 6px; }
+  .lp-nav [data-auth="login"] { display: none; }
+  .lp-nav #btnInstallLp { display: none !important; }
+}
+
+/* Tabelas dentro de cards continuam roláveis horizontalmente
+   (table-wrap), mas ficam mais compactas para caber mais colunas
+   antes de precisar rolar. */
+@media (max-width: 640px) {
+  .ff-table th, .ff-table td { padding: 9px 10px; font-size: 12.5px; }
+  .table-wrap { -webkit-overflow-scrolling: touch; }
+}
