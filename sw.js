@@ -8,7 +8,7 @@
      o app recarrega (atualização em tempo real)
    ============================================================ */
 
-const VERSION = 'ff-v1.1.0';
+const VERSION = 'ff-v1.2.1';
 
 const PRECACHE = [
   'index.html',
@@ -54,9 +54,12 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET' || !req.url.startsWith(self.location.origin)) return;
 
   const isHTML = req.mode === 'navigate' || req.destination === 'document';
+  const isCodeAsset = req.destination === 'style' || req.destination === 'script';
 
-  if (isHTML) {
-    // network-first: HTML sempre fresco, cache como fallback offline
+  if (isHTML || isCodeAsset) {
+    // network-first: HTML/CSS/JS sempre frescos, cache só como fallback
+    // offline. Evita servir estilos/scripts antigos presos no cache
+    // depois de um deploy — o app muda com frequência nesta fase.
     e.respondWith(
       fetch(req)
         .then(res => {
@@ -64,12 +67,12 @@ self.addEventListener('fetch', (e) => {
           caches.open(VERSION).then(c => c.put(req, copy));
           return res;
         })
-        .catch(() => caches.match(req).then(r => r || caches.match('index.html')))
+        .catch(() => caches.match(req).then(r => r || (isHTML ? caches.match('index.html') : undefined)))
     );
     return;
   }
 
-  // stale-while-revalidate para css/js/fontes/imagens
+  // stale-while-revalidate para fontes/imagens/libs vendorizadas (mudam raramente)
   e.respondWith(
     caches.match(req).then(cached => {
       const network = fetch(req)
