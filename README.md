@@ -42,7 +42,7 @@ configuração adicional.
 Quer usar seu próprio projeto Supabase (gratuito) em vez do padrão?
 
 1. Crie um projeto em [supabase.com](https://supabase.com).
-2. Rode `supabase/schema.sql` no SQL Editor (cria a tabela com Row Level Security).
+2. Rode `supabase/schema.sql` no SQL Editor (cria as tabelas — uma por tipo de dado — com Row Level Security).
 3. Habilite os provedores Email e Google em Authentication.
 4. Cole a URL e a anon key em **Configurações → Nuvem → Salvar projeto próprio**.
 
@@ -91,6 +91,6 @@ assets/
   vendor/                      Chart.js e Supabase SDK locais
   fonts/                       Inter (woff2)
   icons/                       ícones do PWA
-supabase/schema.sql            tabela + RLS + realtime para a nuvem
+supabase/schema.sql            tabelas relacionais + RLS + realtime para a nuvem
 docs/PLANO-V1.md               plano de implementação da v1.0
 ```

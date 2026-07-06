@@ -202,10 +202,10 @@
   document.getElementById('btnExport').onclick = FF.exportJSON;
   document.getElementById('btnImport').onclick = FF.importJSON;
   document.getElementById('btnReset').onclick = () =>
-    FF.confirmDialog('Isto apaga TODOS os dados deste perfil (lançamentos, metas, sonhos, projetos, XP). Não há como desfazer. Continuar?', () => {
-      FF.resetAll();
-      FF.toast('Sistema resetado. Recarregando…', 'success', '🧹');
-      setTimeout(() => location.reload(), 900);
+    FF.confirmDialog('Isto apaga TODOS os dados deste perfil (lançamentos, metas, sonhos, projetos, XP) — inclusive na nuvem, se estiver conectado. Não há como desfazer. Continuar?', async () => {
+      await FF.resetAll();
+      FF.toast('Sistema resetado. Recarregando…', 'success');
+      setTimeout(() => location.reload(), 600);
     });
 
   /* ================= Nuvem (Supabase) ================= */

@@ -10,7 +10,9 @@
 
   FF.init = ({ title, subtitle, actions = '' } = {}) => {
     FF.applyTheme();
-    FF.seedDemo();
+    // dados de demonstração só para quem está navegando sem conta —
+    // contas novas (locais ou em nuvem) sempre começam zeradas
+    if (!FF.session()) FF.seedDemo();
     FF.renderSidebar();
     if (title) FF.renderTopbar(title, subtitle, actions);
     FF.chartDefaults();

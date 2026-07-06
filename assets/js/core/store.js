@@ -81,13 +81,10 @@
 
   function load() {
     try {
+      // conta (local ou nuvem) sempre começa zerada — nunca herda o
+      // que estiver no modo visitante (que pode conter dados de demonstração)
       const raw = localStorage.getItem(FF.storageKey());
       if (raw) return migrate(JSON.parse(raw));
-      // primeiro login de um usuário: herda os dados de visitante, se existirem
-      if (FF.session()) {
-        const guest = localStorage.getItem(BASE_KEY);
-        if (guest) return migrate(JSON.parse(guest));
-      }
     } catch (e) { console.warn('FF load error', e); }
     return defaults();
   }
@@ -108,9 +105,14 @@
     localStorage.setItem(FF.storageKey(), JSON.stringify(FF.state));
   };
 
-  FF.resetAll = () => {
+  FF.resetAll = async () => {
     localStorage.removeItem(FF.storageKey());
     FF.state = defaults();
+    FF.save();
+    // sem isso, um reset em conta sincronizada com a nuvem "volta sozinho"
+    // no próximo login: o pull encontraria a versão antiga (com dados) na
+    // nuvem, mais recente que o estado zerado recém-criado localmente.
+    if (typeof FF.forcePushNow === 'function') await FF.forcePushNow();
   };
 
   /* ---------- categorias dinâmicas ---------- */
