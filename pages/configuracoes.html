@@ -116,11 +116,11 @@
 
           <!-- NUVEM -->
           <section data-panel="nuvem" hidden>
-            <h2>Sincronização em nuvem <span class="badge gray" id="syncBadge" style="vertical-align:2px">desativada</span></h2>
-            <p class="panel-sub">
-              Conecte um projeto Supabase (gratuito) para login com Google e sincronização
-              automática entre dispositivos. Execute <code>supabase/schema.sql</code> no seu
-              projeto e cole as credenciais abaixo.
+            <h2>Sincronização em nuvem <span class="badge gray" id="syncBadge" style="vertical-align:2px">…</span></h2>
+            <p class="panel-sub" id="cloudSub">
+              O FinanceFlow já vem com um projeto Supabase próprio: crie sua conta em
+              <b>Entrar / Criar conta</b> para sincronizar seus dados entre dispositivos.
+              Prefere usar seu próprio projeto? Cole as credenciais abaixo.
             </p>
             <div class="form-grid">
               <div class="field" style="grid-column:1/-1"><label>URL do projeto</label>
@@ -129,8 +129,9 @@
                 <input id="sbKey" placeholder="eyJhbGciOi..."></div>
             </div>
             <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
-              <button class="btn btn-primary btn-sm" id="btnSbSave">Salvar conexão</button>
-              <button class="btn btn-ghost btn-sm" id="btnSbClear">Desconectar</button>
+              <button class="btn btn-primary btn-sm" id="btnSbSave">Salvar projeto próprio</button>
+              <button class="btn btn-ghost btn-sm" id="btnSbDefault">Usar o padrão do FinanceFlow</button>
+              <button class="btn btn-ghost btn-sm" id="btnSbClear">Desativar nuvem (só local)</button>
             </div>
           </section>
         </div>

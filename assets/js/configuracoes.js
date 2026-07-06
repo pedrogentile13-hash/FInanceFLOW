@@ -209,29 +209,50 @@
     });
 
   /* ================= Nuvem (Supabase) ================= */
-  const cfg = FF.supabaseConfig();
-  if (cfg) {
-    document.getElementById('sbUrl').value = cfg.url;
-    document.getElementById('sbKey').value = cfg.anonKey;
+  (() => {
+    const cfg = FF.supabaseConfig(); // nunca null: cai no padrão do FinanceFlow
     const badge = document.getElementById('syncBadge');
-    const st = FF.syncStatus();
-    badge.textContent = st === 'on' ? '☁️ Sincronizado' : 'configurada — faça login';
-    badge.className = 'badge ' + (st === 'on' ? 'green' : 'amber');
-  }
-  document.getElementById('btnSbSave').onclick = () => {
-    const url = document.getElementById('sbUrl').value.trim();
-    const key = document.getElementById('sbKey').value.trim();
-    if (!/^https:\/\/.+\.supabase\.co\/?$/.test(url) || key.length < 20) {
-      return FF.toast('Verifique a URL e a anon key do Supabase', 'error', '⚠️');
+    const sub = document.getElementById('cloudSub');
+    document.getElementById('sbUrl').value = cfg ? cfg.url : '';
+    document.getElementById('sbKey').value = cfg ? cfg.anonKey : '';
+
+    if (!cfg) {
+      badge.textContent = 'desativada';
+      badge.className = 'badge gray';
+    } else if (FF.isDefaultSupabase()) {
+      const st = FF.syncStatus();
+      badge.textContent = st === 'on' ? 'Sincronizado (padrão)' : 'Padrão FinanceFlow — faça login para sincronizar';
+      badge.className = 'badge ' + (st === 'on' ? 'green' : 'amber');
+      sub.innerHTML = 'Você está usando o projeto Supabase padrão do FinanceFlow. Crie sua conta em ' +
+        '<b>Entrar / Criar conta</b> (aba Perfil) para sincronizar seus dados entre dispositivos.';
+    } else {
+      const st = FF.syncStatus();
+      badge.textContent = st === 'on' ? 'Sincronizado (projeto próprio)' : 'Projeto próprio — faça login para sincronizar';
+      badge.className = 'badge ' + (st === 'on' ? 'green' : 'amber');
+      sub.textContent = 'Conectado ao seu próprio projeto Supabase. Lembre-se de rodar supabase/schema.sql nele.';
     }
-    FF.setSupabaseConfig({ url: url.replace(/\/$/, ''), anonKey: key });
-    FF.toast('Supabase conectado! Entre pela página de login para sincronizar.', 'success', '☁️');
-    setTimeout(() => location.reload(), 1200);
-  };
-  document.getElementById('btnSbClear').onclick = () =>
-    FF.confirmDialog('Desconectar o Supabase? O app volta a funcionar apenas localmente.', () => {
-      FF.setSupabaseConfig(null);
-      FF.toast('Supabase desconectado', '', '🔌');
-      setTimeout(() => location.reload(), 900);
-    });
+
+    document.getElementById('btnSbSave').onclick = () => {
+      const url = document.getElementById('sbUrl').value.trim();
+      const key = document.getElementById('sbKey').value.trim();
+      if (!/^https:\/\/.+\.supabase\.co\/?$/.test(url) || key.length < 20) {
+        return FF.toast('Verifique a URL e a anon key do Supabase', 'error', '⚠️');
+      }
+      FF.setSupabaseConfig({ url: url.replace(/\/$/, ''), anonKey: key });
+      FF.toast('Projeto Supabase próprio conectado! Entre novamente para sincronizar.', 'success', '☁️');
+      setTimeout(() => location.reload(), 1200);
+    };
+    document.getElementById('btnSbDefault').onclick = () =>
+      FF.confirmDialog('Voltar a usar o projeto Supabase padrão do FinanceFlow?', () => {
+        FF.useDefaultSupabase();
+        FF.toast('Voltando ao padrão do FinanceFlow', 'success', '☁️');
+        setTimeout(() => location.reload(), 900);
+      });
+    document.getElementById('btnSbClear').onclick = () =>
+      FF.confirmDialog('Desativar a nuvem? O app volta a funcionar apenas neste dispositivo.', () => {
+        FF.setSupabaseConfig(null);
+        FF.toast('Nuvem desativada — modo local', '', '🔌');
+        setTimeout(() => location.reload(), 900);
+      });
+  })();
 })();

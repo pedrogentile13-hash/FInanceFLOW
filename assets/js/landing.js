@@ -70,8 +70,12 @@
 
   // abre direto se veio de #conta (ex.: link da sidebar ou logout)
   if (location.hash === '#conta') openAuth('login');
-  // retorno do OAuth Google
-  if (isCloud) FF.resolveOAuth().then(ok => { if (ok) location.href = 'pages/dashboard.html'; });
+  // retorno do OAuth Google — só carrega o SDK (~200KB) quando a URL
+  // realmente parece um callback de login, não em toda visita à landing
+  const looksLikeOAuthReturn = /access_token=|refresh_token=|[?&]code=/.test(location.hash + location.search);
+  if (isCloud && !FF.session() && looksLikeOAuthReturn) {
+    FF.resolveOAuth().then(ok => { if (ok) location.href = 'pages/dashboard.html'; });
+  }
 
   const busy = (form, on) => form.querySelectorAll('button, input').forEach(el => el.disabled = on);
 

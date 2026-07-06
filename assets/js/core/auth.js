@@ -12,17 +12,39 @@
   const USERS_KEY = 'financeflow_users';
   const SB_CFG_KEY = 'financeflow_supabase';
 
+  // Projeto Supabase padrão do FinanceFlow — ativo para todo mundo por
+  // padrão, sem precisar colar credenciais em Configurações. A anon key
+  // é pública por natureza (protegida pelas policies de RLS do projeto,
+  // ver supabase/schema.sql); pode ser trocada por um projeto próprio
+  // em Configurações → Nuvem.
+  const DEFAULT_SUPABASE = {
+    url: 'https://sembfpebrbszmpiqqbcb.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlbWJmcGVicmJzem1waXFxYmNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyODk3MTksImV4cCI6MjA5ODg2NTcxOX0.yddai8Sm_InjW13JFhHksFS0qQmIBkkIeova_-MCC7Y',
+  };
+
   /* ---------- configuração do Supabase ---------- */
+  // localStorage pode conter: nada (usa o padrão), {disabled:true}
+  // (usuário desativou a nuvem, força modo local) ou {url,anonKey}
+  // (projeto Supabase próprio, substitui o padrão).
   FF.supabaseConfig = () => {
     try {
       const c = JSON.parse(localStorage.getItem(SB_CFG_KEY));
-      return c && c.url && c.anonKey ? c : null;
-    } catch (e) { return null; }
+      if (c && c.disabled) return null;
+      if (c && c.url && c.anonKey) return c;
+    } catch (e) { /* localStorage inválido, cai para o padrão */ }
+    return DEFAULT_SUPABASE;
+  };
+  FF.isDefaultSupabase = () => {
+    try {
+      const c = JSON.parse(localStorage.getItem(SB_CFG_KEY));
+      return !(c && (c.disabled || (c.url && c.anonKey)));
+    } catch (e) { return true; }
   };
   FF.setSupabaseConfig = (cfg) => {
     if (cfg) localStorage.setItem(SB_CFG_KEY, JSON.stringify(cfg));
-    else localStorage.removeItem(SB_CFG_KEY);
+    else localStorage.setItem(SB_CFG_KEY, JSON.stringify({ disabled: true }));
   };
+  FF.useDefaultSupabase = () => localStorage.removeItem(SB_CFG_KEY);
 
   let sbClient = null;
   FF.supabase = () => {
@@ -70,6 +92,16 @@
     try { return JSON.parse(localStorage.getItem(USERS_KEY)) || []; }
     catch (e) { return []; }
   }
+
+  // traduz erros técnicos de rede do supabase-js para uma mensagem legível
+  function friendlyAuthError(message) {
+    if (/failed to fetch|network|load failed|ERR_/i.test(message || '')) {
+      return 'Não foi possível conectar ao servidor. Verifique sua internet e tente de novo.';
+    }
+    if (/invalid login credentials/i.test(message || '')) return 'E-mail ou senha incorretos.';
+    if (/user already registered/i.test(message || '')) return 'Este e-mail já possui conta.';
+    return message || 'Ocorreu um erro inesperado.';
+  }
   function saveLocalUsers(users) { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
 
   const normEmail = (e) => String(e || '').trim().toLowerCase();
@@ -85,10 +117,14 @@
     if (FF.authMode() === 'supabase') {
       const sb = FF.supabase();
       if (!sb) return { ok: false, error: 'SDK do Supabase indisponível.' };
-      const { data, error } = await sb.auth.signUp({ email, password, options: { data: { nome } } });
-      if (error) return { ok: false, error: error.message };
-      FF.setSession({ userId: data.user.id, email, nome, provider: 'supabase' });
-      return { ok: true };
+      try {
+        const { data, error } = await sb.auth.signUp({ email, password, options: { data: { nome } } });
+        if (error) return { ok: false, error: friendlyAuthError(error.message) };
+        FF.setSession({ userId: data.user.id, email, nome, provider: 'supabase' });
+        return { ok: true };
+      } catch (e) {
+        return { ok: false, error: 'Não foi possível conectar ao servidor. Verifique sua internet e tente de novo.' };
+      }
     }
 
     const users = localUsers();
@@ -112,11 +148,15 @@
     if (FF.authMode() === 'supabase') {
       const sb = FF.supabase();
       if (!sb) return { ok: false, error: 'SDK do Supabase indisponível.' };
-      const { data, error } = await sb.auth.signInWithPassword({ email, password });
-      if (error) return { ok: false, error: error.message };
-      const nome = data.user.user_metadata?.nome || email.split('@')[0];
-      FF.setSession({ userId: data.user.id, email, nome, provider: 'supabase' });
-      return { ok: true };
+      try {
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) return { ok: false, error: friendlyAuthError(error.message) };
+        const nome = data.user.user_metadata?.nome || email.split('@')[0];
+        FF.setSession({ userId: data.user.id, email, nome, provider: 'supabase' });
+        return { ok: true };
+      } catch (e) {
+        return { ok: false, error: 'Não foi possível conectar ao servidor. Verifique sua internet e tente de novo.' };
+      }
     }
 
     const u = localUsers().find(x => x.email === email);
@@ -133,17 +173,21 @@
     }
     const sb = FF.supabase();
     if (!sb) return { ok: false, error: 'SDK do Supabase indisponível.' };
-    const { error } = await sb.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: location.origin + location.pathname.replace(/pages\/[^/]*$|[^/]*$/, 'index.html') + '#conta' },
-    });
-    return error ? { ok: false, error: error.message } : { ok: true, redirect: true };
+    try {
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: location.origin + location.pathname.replace(/pages\/[^/]*$|[^/]*$/, 'index.html') + '#conta' },
+      });
+      return error ? { ok: false, error: friendlyAuthError(error.message) } : { ok: true, redirect: true };
+    } catch (e) {
+      return { ok: false, error: 'Não foi possível conectar ao servidor. Verifique sua internet e tente de novo.' };
+    }
   };
 
   FF.logout = async () => {
     if (FF.authMode() === 'supabase') {
       const sb = FF.supabase();
-      if (sb) await sb.auth.signOut();
+      if (sb) { try { await sb.auth.signOut(); } catch (e) { /* offline: encerra a sessão local mesmo assim */ } }
     }
     FF.setSession(null);
     location.href = root() + 'index.html#conta';
@@ -162,7 +206,8 @@
     await FF.loadSupabaseSDK();
     const sb = FF.supabase();
     if (!sb) return false;
-    const { data } = await sb.auth.getSession();
+    let data;
+    try { ({ data } = await sb.auth.getSession()); } catch (e) { return false; }
     if (data && data.session) {
       const u = data.session.user;
       FF.setSession({

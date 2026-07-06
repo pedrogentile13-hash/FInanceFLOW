@@ -30,12 +30,10 @@
       updated_at: new Date().toISOString(),
     });
     if (error) console.warn('FF sync push', error.message);
-    else setBadge('ok');
   }
 
   function schedulePush() {
     if (!canSync()) return;
-    setBadge('pending');
     clearTimeout(pushTimer);
     pushTimer = setTimeout(push, 2000);
   }
@@ -57,8 +55,7 @@
     applyingRemote = true;
     FF.replaceState(remoteState);
     applyingRemote = false;
-    setBadge('ok');
-    FF.toast('Dados sincronizados de outro dispositivo. Atualizando…', 'success', '☁️');
+    FF.toast('Dados sincronizados de outro dispositivo. Atualizando…', 'success');
     setTimeout(() => location.reload(), 1200);
   }
 
@@ -76,21 +73,17 @@
       .subscribe();
   }
 
-  function setBadge(status) {
-    const el = document.getElementById('syncBadge');
-    if (!el) return;
-    el.textContent = status === 'ok' ? '☁️ Sincronizado' : '☁️ Sincronizando…';
-    el.className = 'badge ' + (status === 'ok' ? 'green' : 'amber');
-  }
-
   FF.initSync = async () => {
-    if (!FF.supabaseConfig()) return;
+    // só carrega o SDK (~200KB) quando existe de fato uma sessão
+    // Supabase ativa — visitantes e contas locais nunca pagam esse custo,
+    // mesmo com o projeto padrão configurado para todo mundo.
+    const s = FF.session();
+    if (!FF.supabaseConfig() || !s || s.provider !== 'supabase') return;
     await FF.loadSupabaseSDK();
     if (!canSync()) return;
     FF.onSave(schedulePush);
     await pull();
     subscribe();
-    setBadge('ok');
   };
 
   FF.syncStatus = () => {

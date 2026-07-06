@@ -28,22 +28,27 @@ Sistema operacional completo para gestão financeira pessoal, metas, sonhos, pro
 - **PWA instalável** — prompt "Instalar app" no navegador, funciona offline e
   atualiza em tempo real via service worker
 - **Chart.js** e **fonte Inter** embutidos (funciona 100% offline)
-- **LocalStorage** por padrão; **Supabase** opcional para nuvem
+- **Supabase** como nuvem padrão (login com Google, sincronização entre
+  dispositivos); **LocalStorage** puro continua disponível como modo offline
 - Visualização por período (mês, 3 meses, ano ou tudo) no dashboard e estatísticas
 - Modo claro/escuro, 6 cores de destaque, ícones SVG profissionais, mobile-first
 
-## ☁️ Nuvem e autenticação (opcional)
+## ☁️ Nuvem e autenticação
 
-O app funciona 100% local por padrão. Para login com Google, recuperação de senha
-por e-mail e sincronização automática entre dispositivos:
+O FinanceFlow já vem conectado a um projeto Supabase próprio — criar conta em
+**Entrar / Criar conta** já sincroniza os dados entre dispositivos, sem nenhuma
+configuração adicional.
 
-1. Crie um projeto gratuito em [supabase.com](https://supabase.com).
+Quer usar seu próprio projeto Supabase (gratuito) em vez do padrão?
+
+1. Crie um projeto em [supabase.com](https://supabase.com).
 2. Rode `supabase/schema.sql` no SQL Editor (cria a tabela com Row Level Security).
 3. Habilite os provedores Email e Google em Authentication.
-4. Cole a URL e a anon key em **Configurações → Sincronização em nuvem**.
+4. Cole a URL e a anon key em **Configurações → Nuvem → Salvar projeto próprio**.
 
-Sem Supabase, o login local (offline) continua disponível: contas com senha
-protegida por hash, código de recuperação e dados isolados por usuário.
+Prefere não usar nuvem nenhuma? Em **Configurações → Nuvem → Desativar nuvem**
+o app volta a funcionar 100% local, com contas protegidas por senha (hash) que
+nunca saem do navegador.
 
 > **Por que Supabase e não Firebase?** Postgres relacional (dados financeiros são
 > relacionais), Row Level Security declarada no banco, auth com Google incluída,
