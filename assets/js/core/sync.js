@@ -94,46 +94,56 @@
 
   async function syncTable(sb, table, current, previous, toRow) {
     const { upserts, deletes } = diffRows(current, previous);
-    if (upserts.length) {
-      const { error } = await sb.from(table).upsert(upserts.map(toRow));
-      if (error) console.warn(`FF sync push ${table}`, error.message);
-    }
-    if (deletes.length) {
-      const { error } = await sb.from(table).delete().in('id', deletes);
-      if (error) console.warn(`FF sync delete ${table}`, error.message);
+    try {
+      if (upserts.length) {
+        const { error } = await sb.from(table).upsert(upserts.map(toRow));
+        if (error) console.warn(`FF sync push ${table}`, error.message);
+      }
+      if (deletes.length) {
+        const { error } = await sb.from(table).delete().in('id', deletes);
+        if (error) console.warn(`FF sync delete ${table}`, error.message);
+      }
+    } catch (e) {
+      console.warn(`FF sync ${table} falhou`, e.message);
     }
   }
 
   async function push() {
     if (!canSync() || applyingRemote) return;
-    const sb = FF.supabase();
-    const s = FF.session();
-    const map = rowMappers(s.userId);
-    const cur = snapshot(FF.state);
-    const prev = snapshot(lastSynced);
+    try {
+      const sb = FF.supabase();
+      const s = FF.session();
+      const map = rowMappers(s.userId);
+      const cur = snapshot(FF.state);
+      const prev = snapshot(lastSynced);
 
-    await syncTable(sb, 'transactions', cur.transactions, prev.transactions, map.transactions);
-    await syncTable(sb, 'goals', cur.goals, prev.goals, map.goals);
-    await syncTable(sb, 'dreams', cur.dreams, prev.dreams, map.dreams);
-    await syncTable(sb, 'investments', cur.investments, prev.investments, map.investments);
-    await syncTable(sb, 'categories', cur.categories, prev.categories, map.categories);
-    await syncTable(sb, 'projects', cur.projects, prev.projects, map.projects);
-    await syncTable(sb, 'project_entries', cur.entries, prev.entries, map.entries);
+      await syncTable(sb, 'transactions', cur.transactions, prev.transactions, map.transactions);
+      await syncTable(sb, 'goals', cur.goals, prev.goals, map.goals);
+      await syncTable(sb, 'dreams', cur.dreams, prev.dreams, map.dreams);
+      await syncTable(sb, 'investments', cur.investments, prev.investments, map.investments);
+      await syncTable(sb, 'categories', cur.categories, prev.categories, map.categories);
+      await syncTable(sb, 'projects', cur.projects, prev.projects, map.projects);
+      await syncTable(sb, 'project_entries', cur.entries, prev.entries, map.entries);
 
-    if (JSON.stringify(cur.userSettings) !== JSON.stringify(prev.userSettings)) {
-      const { error } = await sb.from('user_settings').upsert({
-        user_id: s.userId,
-        xp: cur.userSettings.xp,
-        achievements: cur.userSettings.achievements,
-        settings: cur.userSettings.settings,
-        seeded: cur.userSettings.seeded,
-        updated_at: new Date().toISOString(),
-      });
-      if (error) console.warn('FF sync push user_settings', error.message);
+      if (JSON.stringify(cur.userSettings) !== JSON.stringify(prev.userSettings)) {
+        const { error } = await sb.from('user_settings').upsert({
+          user_id: s.userId,
+          xp: cur.userSettings.xp,
+          achievements: cur.userSettings.achievements,
+          settings: cur.userSettings.settings,
+          seeded: cur.userSettings.seeded,
+          updated_at: new Date().toISOString(),
+        });
+        if (error) console.warn('FF sync push user_settings', error.message);
+      }
+
+      lastSynced = JSON.parse(JSON.stringify(FF.state));
+      lastPushAt = Date.now();
+    } catch (e) {
+      // rede indisponível, schema ainda não criado, etc. — nunca deixa o
+      // app quebrar por causa da sincronização; a próxima tentativa resolve
+      console.warn('FF sync push falhou', e.message);
     }
-
-    lastSynced = JSON.parse(JSON.stringify(FF.state));
-    lastPushAt = Date.now();
   }
 
   function schedulePush() {
@@ -151,6 +161,16 @@
 
   async function pull() {
     if (!canSync()) return;
+    try {
+      await pullInner();
+    } catch (e) {
+      // rede indisponível, schema ainda não criado, etc. — mantém o estado
+      // local como está em vez de deixar a página quebrar
+      console.warn('FF sync pull falhou', e.message);
+    }
+  }
+
+  async function pullInner() {
     const sb = FF.supabase();
     const s = FF.session();
     const uid = s.userId;
@@ -173,6 +193,28 @@
     if (!hasRemoteData) {
       // conta nova: nada na nuvem ainda — mantém o estado local (zerado) como está
       lastSynced = JSON.parse(JSON.stringify(FF.state));
+      return;
+    }
+
+    // autocorreção: nenhuma conta logada deveria ter seeded=true na nuvem —
+    // isso só pode ser dado de demonstração que vazou de uma versão anterior
+    // (antes desta marca existir). Em vez de adotar esse lixo, apaga tudo que
+    // está na nuvem para essa conta e sobe o estado local (já limpo) por cima.
+    if (settingsRow.data && settingsRow.data.seeded) {
+      lastSynced = {
+        transactions: (tx.data || []).map(fromRow.transactions),
+        metas: (goals.data || []).map(fromRow.goals),
+        sonhos: (dreams.data || []).map(fromRow.dreams),
+        investimentos: (inv.data || []).map(fromRow.investments),
+        categories: { in: [], out: [] },
+        projetos: (projs.data || []).map(p => ({
+          id: p.id, nome: p.nome, status: p.status, obs: p.obs, clientes: p.clientes,
+          lancamentos: (entries.data || []).filter(e => e.project_id === p.id)
+            .map(e => ({ id: e.id, tipo: e.tipo, valor: Number(e.valor), desc: e.descricao, data: e.data || '' })),
+        })),
+        xp: 0, achievements: [], settings: {}, seeded: true,
+      };
+      await push(); // FF.state local já está zerado (ver store.js load()) — o diff apaga tudo isso da nuvem
       return;
     }
 

@@ -84,7 +84,15 @@
       // conta (local ou nuvem) sempre começa zerada — nunca herda o
       // que estiver no modo visitante (que pode conter dados de demonstração)
       const raw = localStorage.getItem(FF.storageKey());
-      if (raw) return migrate(JSON.parse(raw));
+      if (raw) {
+        const parsed = migrate(JSON.parse(raw));
+        // autocorreção: nenhuma conta logada deveria ter seeded=true —
+        // essa marca só existe em dados de demonstração do modo visitante.
+        // Contas que ficaram com isso salvo (de antes desta correção)
+        // são limpas automaticamente aqui, sem precisar de ação manual.
+        if (FF.session() && parsed.seeded) return defaults();
+        return parsed;
+      }
     } catch (e) { console.warn('FF load error', e); }
     return defaults();
   }
