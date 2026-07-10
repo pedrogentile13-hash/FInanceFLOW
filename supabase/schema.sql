@@ -13,6 +13,35 @@
 --   drop table if exists public.financeflow_data;
 -- ============================================================
 
+-- Perfis públicos: espelho visível de auth.users (onde o Supabase Auth
+-- guarda os logins de verdade). Uma linha por usuário, criada
+-- automaticamente pelo trigger abaixo a cada cadastro.
+create table if not exists public.profiles (
+  user_id    uuid primary key references auth.users (id) on delete cascade,
+  nome       text,
+  email      text,
+  created_at timestamptz not null default now()
+);
+
+-- cria o perfil automaticamente quando um usuário se cadastra
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  insert into public.profiles (user_id, nome, email)
+  values (new.id, new.raw_user_meta_data->>'nome', new.email)
+  on conflict (user_id) do nothing;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+
 create table if not exists public.categories (
   id         text primary key,
   user_id    uuid not null references auth.users (id) on delete cascade,
@@ -105,7 +134,7 @@ do $$
 declare
   t text;
 begin
-  foreach t in array array['categories', 'transactions', 'goals', 'dreams',
+  foreach t in array array['profiles', 'categories', 'transactions', 'goals', 'dreams',
                             'investments', 'projects', 'project_entries', 'user_settings']
   loop
     execute format('alter table public.%I enable row level security', t);
@@ -131,9 +160,23 @@ create index if not exists idx_project_entries_project on public.project_entries
 create index if not exists idx_categories_user on public.categories (user_id);
 
 -- Realtime: permite que outros dispositivos recebam mudanças ao vivo.
-alter publication supabase_realtime add table
-  public.categories, public.transactions, public.goals, public.dreams,
-  public.investments, public.projects, public.project_entries, public.user_settings;
+-- (idempotente: rodar este script mais de uma vez não dá erro — no SQL
+-- Editor do Supabase um erro aqui no fim desfaria o script INTEIRO,
+-- inclusive a criação das tabelas lá de cima)
+do $$
+declare
+  t text;
+begin
+  foreach t in array array['categories', 'transactions', 'goals', 'dreams',
+                            'investments', 'projects', 'project_entries', 'user_settings']
+  loop
+    begin
+      execute format('alter publication supabase_realtime add table public.%I', t);
+    exception when duplicate_object then
+      null; -- já estava na publication
+    end;
+  end loop;
+end $$;
 
 -- ============================================================
 -- Depois de rodar este script:

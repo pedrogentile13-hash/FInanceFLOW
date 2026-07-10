@@ -108,6 +108,17 @@
 
   const normEmail = (e) => String(e || '').trim().toLowerCase();
 
+  // mantém a tabela pública `profiles` em dia (o trigger do schema cobre
+  // cadastros novos; este upsert cobre contas anteriores ao trigger e
+  // mudanças de nome). Nunca pode quebrar o fluxo de login.
+  async function upsertProfile(userId, nome, email) {
+    try {
+      const sb = FF.supabase();
+      if (!sb) return;
+      await sb.from('profiles').upsert({ user_id: userId, nome, email });
+    } catch (e) { /* perfil é espelho, não crítico */ }
+  }
+
   /* ---------- API pública ---------- */
 
   // cadastro → {ok, recoveryCode?} | {ok:false, error}
@@ -129,6 +140,7 @@
           return { ok: true, needsConfirmation: true };
         }
         FF.setSession({ userId: data.user.id, email, nome, provider: 'supabase' });
+        upsertProfile(data.user.id, nome, email);
         return { ok: true };
       } catch (e) {
         return { ok: false, error: 'Não foi possível conectar ao servidor. Verifique sua internet e tente de novo.' };
@@ -161,6 +173,7 @@
         if (error) return { ok: false, error: friendlyAuthError(error.message) };
         const nome = data.user.user_metadata?.nome || email.split('@')[0];
         FF.setSession({ userId: data.user.id, email, nome, provider: 'supabase' });
+        upsertProfile(data.user.id, nome, email);
         return { ok: true };
       } catch (e) {
         return { ok: false, error: 'Não foi possível conectar ao servidor. Verifique sua internet e tente de novo.' };
@@ -203,7 +216,11 @@
 
   FF.updateProfile = ({ nome }) => {
     const s = FF.session();
-    if (s) { s.nome = nome; FF.setSession(s); }
+    if (s) {
+      s.nome = nome;
+      FF.setSession(s);
+      if (s.provider === 'supabase') upsertProfile(s.userId, nome, s.email);
+    }
     FF.state.settings.nome = nome;
     FF.save();
   };
@@ -218,11 +235,9 @@
     try { ({ data } = await sb.auth.getSession()); } catch (e) { return false; }
     if (data && data.session) {
       const u = data.session.user;
-      FF.setSession({
-        userId: u.id, email: u.email,
-        nome: u.user_metadata?.nome || u.user_metadata?.full_name || u.email.split('@')[0],
-        provider: 'supabase',
-      });
+      const nome = u.user_metadata?.nome || u.user_metadata?.full_name || u.email.split('@')[0];
+      FF.setSession({ userId: u.id, email: u.email, nome, provider: 'supabase' });
+      upsertProfile(u.id, nome, u.email);
       return true;
     }
     return false;
