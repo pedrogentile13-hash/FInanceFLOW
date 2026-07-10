@@ -33,6 +33,23 @@
     return !!(FF.supabaseConfig() && s && s.provider === 'supabase' && FF.supabase());
   }
 
+  // Com RLS, cada gravação precisa do JWT do usuário. Ter a sessão do APP
+  // (financeflow_session) não basta: se o token do Supabase não existir
+  // (conta criada sem confirmar o e-mail, token expirado, storage limpo),
+  // todo upsert falharia em silêncio. Verifica e avisa uma única vez.
+  let warnedNoJwt = false;
+  async function hasCloudJwt() {
+    try {
+      const { data } = await FF.supabase().auth.getSession();
+      if (data && data.session) return true;
+    } catch (e) { /* trata como sem sessão */ }
+    if (!warnedNoJwt) {
+      warnedNoJwt = true;
+      FF.toast('Sua sessão na nuvem expirou — entre novamente para voltar a sincronizar.', 'error');
+    }
+    return false;
+  }
+
   /* ---------- achatamento do estado em listas por tabela ---------- */
   const flattenCategories = (cats) => [
     ...((cats && cats.in) || []).map(c => ({ ...c, type: 'in' })),
@@ -110,6 +127,7 @@
 
   async function push() {
     if (!canSync() || applyingRemote) return;
+    if (!(await hasCloudJwt())) return;
     try {
       const sb = FF.supabase();
       const s = FF.session();
@@ -161,6 +179,7 @@
 
   async function pull() {
     if (!canSync()) return;
+    if (!(await hasCloudJwt())) return;
     try {
       await pullInner();
     } catch (e) {
@@ -280,7 +299,16 @@
     await FF.loadSupabaseSDK();
     if (!canSync()) return;
     FF.onSave(schedulePush);
+    // a página já renderizou com o estado local; se o pull inicial trouxer
+    // algo diferente da nuvem (ex.: segundo dispositivo), recarrega uma vez
+    // para a tela refletir os dados sincronizados
+    const before = JSON.stringify(snapshot(FF.state));
     await pull();
+    if (JSON.stringify(snapshot(FF.state)) !== before) {
+      FF.toast('Dados sincronizados da nuvem. Atualizando…', 'success');
+      setTimeout(() => location.reload(), 700);
+      return;
+    }
     subscribe();
   };
 

@@ -103,6 +103,17 @@
     });
     busy(formRegister, false);
     if (!r.ok) return FF.toast(r.error, 'error');
+    if (r.needsConfirmation) {
+      // Supabase exige confirmação de e-mail: sem sessão ainda, não dá
+      // para entrar direto — orienta o usuário e volta para a aba Entrar
+      document.getElementById('authModeHint').innerHTML =
+        '<b>Quase lá!</b> Enviamos um link de confirmação para o seu e-mail. ' +
+        'Clique nele e depois entre com sua senha aqui.';
+      FF.toast('Confirme seu e-mail para ativar a conta.', 'success');
+      setTab('login');
+      document.getElementById('loginEmail').value = document.getElementById('regEmail').value;
+      return;
+    }
     FF.toast('Conta criada. Bem-vindo!', 'success');
     setTimeout(() => location.href = 'pages/dashboard.html', 600);
   };

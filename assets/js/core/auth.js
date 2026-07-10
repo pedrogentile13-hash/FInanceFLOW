@@ -99,7 +99,9 @@
       return 'Não foi possível conectar ao servidor. Verifique sua internet e tente de novo.';
     }
     if (/invalid login credentials/i.test(message || '')) return 'E-mail ou senha incorretos.';
+    if (/email not confirmed/i.test(message || '')) return 'Confirme seu e-mail antes de entrar — verifique sua caixa de entrada (e o spam).';
     if (/user already registered/i.test(message || '')) return 'Este e-mail já possui conta.';
+    if (/rate limit/i.test(message || '')) return 'Muitas tentativas seguidas. Aguarde um minuto e tente de novo.';
     return message || 'Ocorreu um erro inesperado.';
   }
   function saveLocalUsers(users) { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
@@ -120,6 +122,12 @@
       try {
         const { data, error } = await sb.auth.signUp({ email, password, options: { data: { nome } } });
         if (error) return { ok: false, error: friendlyAuthError(error.message) };
+        // com "Confirm email" ativado no Supabase, signUp cria o usuário mas
+        // NÃO devolve sessão — sem JWT, o RLS bloquearia todos os salvamentos.
+        // Nesse caso não podemos fingir que o login aconteceu.
+        if (!data.session) {
+          return { ok: true, needsConfirmation: true };
+        }
         FF.setSession({ userId: data.user.id, email, nome, provider: 'supabase' });
         return { ok: true };
       } catch (e) {
