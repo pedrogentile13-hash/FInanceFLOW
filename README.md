@@ -19,7 +19,7 @@ Sistema operacional completo para gestão financeira pessoal, metas, sonhos, pro
 | `simulador.html` | Simulador de poupança, calculadora de compra e 9 calculadoras de negócio (ROI, CAC, LTV, Break Even…) |
 | `ia-financeira.html` | Motor de insights por regras (100% local), detector de gastos inúteis, resumos e chat |
 | `conquistas.html` | Gamificação: XP, níveis, missões e 20 conquistas |
-| `configuracoes.html` | Central completa: tema, cor principal, idioma/moeda/data, CRUD de categorias, backup, reset e conexão com a nuvem |
+| `configuracoes.html` | Central completa: tema, cor principal, idioma/moeda/data, CRUD de categorias, backup e reset |
 | `index.html` | Landing page com login e criação de conta integrados (modal) |
 
 ## 🛠️ Stack
@@ -39,16 +39,18 @@ O FinanceFlow já vem conectado a um projeto Supabase próprio — criar conta e
 **Entrar / Criar conta** já sincroniza os dados entre dispositivos, sem nenhuma
 configuração adicional.
 
+A sincronização é automática e o status aparece no rodapé do menu lateral
+(sincronizada, erro com detalhes clicáveis ou sessão expirada).
+
 Quer usar seu próprio projeto Supabase (gratuito) em vez do padrão?
 
 1. Crie um projeto em [supabase.com](https://supabase.com).
 2. Rode `supabase/schema.sql` no SQL Editor (cria as tabelas — uma por tipo de dado — com Row Level Security).
 3. Habilite os provedores Email e Google em Authentication.
-4. Cole a URL e a anon key em **Configurações → Nuvem → Salvar projeto próprio**.
+4. Troque `DEFAULT_SUPABASE` em `assets/js/core/auth.js` pela URL e anon key do seu projeto.
 
-Prefere não usar nuvem nenhuma? Em **Configurações → Nuvem → Desativar nuvem**
-o app volta a funcionar 100% local, com contas protegidas por senha (hash) que
-nunca saem do navegador.
+Sem conta, o app funciona 100% local, com contas protegidas por senha (hash)
+que nunca saem do navegador.
 
 > **Por que Supabase e não Firebase?** Postgres relacional (dados financeiros são
 > relacionais), Row Level Security declarada no banco, auth com Google incluída,

@@ -113,29 +113,6 @@
               <button class="btn btn-danger btn-sm" id="btnReset">Resetar</button>
             </div>
           </section>
-
-          <!-- NUVEM -->
-          <section data-panel="nuvem" hidden>
-            <h2>Sincronização em nuvem <span class="badge gray" id="syncBadge" style="vertical-align:2px">…</span></h2>
-            <p class="panel-sub" id="cloudSub">
-              O FinanceFlow já vem com um projeto Supabase próprio: crie sua conta em
-              <b>Entrar / Criar conta</b> para sincronizar seus dados entre dispositivos.
-              Prefere usar seu próprio projeto? Cole as credenciais abaixo.
-            </p>
-            <div class="form-grid">
-              <div class="field" style="grid-column:1/-1"><label>URL do projeto</label>
-                <input id="sbUrl" placeholder="https://xxxx.supabase.co"></div>
-              <div class="field" style="grid-column:1/-1"><label>Chave anônima (anon key)</label>
-                <input id="sbKey" placeholder="eyJhbGciOi..."></div>
-            </div>
-            <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
-              <button class="btn btn-primary btn-sm" id="btnSyncNow">Sincronizar agora</button>
-              <button class="btn btn-ghost btn-sm" id="btnSbSave">Salvar projeto próprio</button>
-              <button class="btn btn-ghost btn-sm" id="btnSbDefault">Usar o padrão do FinanceFlow</button>
-              <button class="btn btn-ghost btn-sm" id="btnSbClear">Desativar nuvem (só local)</button>
-            </div>
-            <div id="syncResult"></div>
-          </section>
         </div>
       </div>
     </main>

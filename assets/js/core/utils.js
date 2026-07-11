@@ -57,16 +57,18 @@ window.FF = window.FF || {};
   const STRINGS = {
     'pt-BR': {
       general: 'Geral', planning: 'Planejamento', intelligence: 'Inteligência', system: 'Sistema',
+      investBrand: 'FinanceFlow Investments', enterpriseBrand: 'FinanceFlow Enterprise',
       dashboard: 'Dashboard', in: 'Entradas', out: 'Saídas', goals: 'Metas', dreams: 'Sonhos',
-      invest: 'Investimentos', projects: 'Projetos', stats: 'Estatísticas', ai: 'IA Financeira',
+      invest: 'Investimentos', projects: 'Empresas', stats: 'Estatísticas', ai: 'IA Financeira',
       sim: 'Simulador', achievements: 'Conquistas', settings: 'Configurações',
       level: 'Nível', export: 'Exportar backup', import: 'Importar backup',
       login: 'Entrar / Criar conta', logout: 'Sair', guest: 'Visitante',
     },
     'en-US': {
       general: 'General', planning: 'Planning', intelligence: 'Intelligence', system: 'System',
+      investBrand: 'FinanceFlow Investments', enterpriseBrand: 'FinanceFlow Enterprise',
       dashboard: 'Dashboard', in: 'Income', out: 'Expenses', goals: 'Goals', dreams: 'Dreams',
-      invest: 'Investments', projects: 'Projects', stats: 'Statistics', ai: 'Finance AI',
+      invest: 'Investments', projects: 'Businesses', stats: 'Statistics', ai: 'Finance AI',
       sim: 'Simulator', achievements: 'Achievements', settings: 'Settings',
       level: 'Level', export: 'Export backup', import: 'Import backup',
       login: 'Sign in / Sign up', logout: 'Sign out', guest: 'Guest',

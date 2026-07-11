@@ -128,6 +128,65 @@ create table if not exists public.user_settings (
   updated_at   timestamptz not null default now()
 );
 
+
+-- ---------- Reconciliação de formato ----------
+-- Se alguma tabela foi criada manualmente ou por uma versão antiga do
+-- script, pode estar sem colunas que o app envia — o PostgREST então
+-- rejeita o INSERT inteiro ("Could not find the '...' column") e o dado
+-- nunca chega ao banco. Estes ALTERs garantem o formato esperado sem
+-- apagar nada. (create table if not exists NÃO corrige tabela existente!)
+alter table public.transactions    add column if not exists type text;
+alter table public.transactions    add column if not exists date date;
+alter table public.transactions    add column if not exists descricao text;
+alter table public.transactions    add column if not exists category text;
+alter table public.transactions    add column if not exists value numeric;
+alter table public.transactions    add column if not exists method text;
+alter table public.transactions    add column if not exists created_at timestamptz default now();
+alter table public.goals           add column if not exists nome text;
+alter table public.goals           add column if not exists objetivo numeric;
+alter table public.goals           add column if not exists atual numeric default 0;
+alter table public.goals           add column if not exists prazo date;
+alter table public.goals           add column if not exists categoria text;
+alter table public.goals           add column if not exists prioridade text;
+alter table public.dreams          add column if not exists nome text;
+alter table public.dreams          add column if not exists emoji text;
+alter table public.dreams          add column if not exists valor numeric;
+alter table public.dreams          add column if not exists acumulado numeric default 0;
+alter table public.investments     add column if not exists tipo text;
+alter table public.investments     add column if not exists value numeric;
+alter table public.investments     add column if not exists data date;
+alter table public.investments     add column if not exists rendimento numeric;
+alter table public.investments     add column if not exists obs text;
+alter table public.projects        add column if not exists nome text;
+alter table public.projects        add column if not exists status text;
+alter table public.projects        add column if not exists obs text;
+alter table public.projects        add column if not exists clientes integer default 0;
+alter table public.project_entries add column if not exists project_id text;
+alter table public.project_entries add column if not exists tipo text;
+alter table public.project_entries add column if not exists valor numeric;
+alter table public.project_entries add column if not exists descricao text;
+alter table public.project_entries add column if not exists data date;
+alter table public.categories      add column if not exists type text;
+alter table public.categories      add column if not exists nome text;
+alter table public.categories      add column if not exists icone text;
+alter table public.categories      add column if not exists cor text;
+alter table public.user_settings   add column if not exists xp integer default 0;
+alter table public.user_settings   add column if not exists achievements jsonb default '[]';
+alter table public.user_settings   add column if not exists settings jsonb default '{}';
+alter table public.user_settings   add column if not exists seeded boolean default false;
+alter table public.user_settings   add column if not exists updated_at timestamptz default now();
+alter table public.profiles        add column if not exists nome text;
+alter table public.profiles        add column if not exists email text;
+
+-- colunas obrigatórias que o app pode não preencher em tabelas antigas:
+-- relaxa NOT NULL herdado de criações manuais divergentes
+do $$
+begin
+  begin alter table public.transactions alter column descricao drop not null; exception when others then null; end;
+  begin alter table public.transactions alter column category drop not null; exception when others then null; end;
+  begin alter table public.transactions alter column method drop not null; exception when others then null; end;
+end $$;
+
 -- ---------- Row Level Security ----------
 -- Mesma política (dono da linha) repetida para cada tabela.
 do $$
@@ -181,7 +240,7 @@ end $$;
 -- ============================================================
 -- Depois de rodar este script:
 -- 1. Authentication → Providers → habilite Email e Google.
--- 2. Copie Project URL e anon key (Settings → API).
--- 3. Cole em FinanceFlow → Configurações → Nuvem (ou use o padrão
---    já embutido no app, se for o caso).
+-- 2. Copie Project URL e anon key (Settings → API) e coloque em
+--    DEFAULT_SUPABASE dentro de assets/js/core/auth.js (ou use o
+--    padrão já embutido no app, se for o caso).
 -- ============================================================

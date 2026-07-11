@@ -110,7 +110,11 @@
     { label: FF.t('planning'), items: [
       { href: 'metas.html', icon: 'target', nome: FF.t('goals') },
       { href: 'sonhos.html', icon: 'star', nome: FF.t('dreams') },
+    ]},
+    { label: FF.t('investBrand'), items: [
       { href: 'investimentos.html', icon: 'bar-chart', nome: FF.t('invest') },
+    ]},
+    { label: FF.t('enterpriseBrand'), items: [
       { href: 'projetos.html', icon: 'briefcase', nome: FF.t('projects') },
     ]},
     { label: FF.t('intelligence'), items: [
@@ -186,8 +190,18 @@
       el.innerHTML = `${FF.icon('cloud', 13)} <span>Nuvem sincronizada</span>`;
     } else if (info.status === 'error') {
       el.className = 'cloud-status err';
-      el.title = info.error || '';
-      el.innerHTML = `${FF.icon('cloud', 13)} <span>Erro ao sincronizar</span>`;
+      el.title = 'Clique para ver o erro';
+      el.style.cursor = 'pointer';
+      el.innerHTML = `${FF.icon('cloud', 13)} <span>Erro ao sincronizar — ver detalhes</span>`;
+      el.onclick = () => FF.modal({
+        title: 'Erro de sincronização',
+        body: `<p class="muted" style="font-size:13.5px;word-break:break-word">
+            Seus dados continuam salvos neste dispositivo, mas o banco de dados
+            recusou a gravação com a mensagem abaixo:</p>
+          <div class="sync-result err" style="margin-top:12px">${FF.esc(info.error || 'desconhecido')}</div>`,
+        saveLabel: 'Tentar de novo',
+        onSave: () => { FF.syncNow().then(() => FF.renderCloudStatus()); },
+      });
     } else if (info.status === 'no-jwt') {
       el.className = 'cloud-status warn';
       el.innerHTML = `${FF.icon('cloud', 13)} <span>Entre novamente p/ sincronizar</span>`;

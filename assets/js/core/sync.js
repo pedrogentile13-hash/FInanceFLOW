@@ -31,8 +31,16 @@
   // status visível da sincronização — a UI (sidebar/configurações) escuta
   // o evento ff:sync e mostra o erro EXATO em vez de engolir em console.warn
   let syncInfo = { status: 'idle', error: null, at: 0 };
+  let toastedError = false;
   function setSyncInfo(status, error) {
     syncInfo = { status, error: error || null, at: Date.now() };
+    // o primeiro erro da sessão aparece na tela com a mensagem EXATA do
+    // banco — é o que permite diagnosticar sem abrir o console
+    if (status === 'error' && error && !toastedError) {
+      toastedError = true;
+      FF.toast('Erro ao salvar na nuvem: ' + error, 'error');
+    }
+    if (status === 'ok') toastedError = false;
     document.dispatchEvent(new CustomEvent('ff:sync', { detail: syncInfo }));
   }
   FF.syncInfo = () => syncInfo;
@@ -310,7 +318,11 @@
   function scheduleRefresh() {
     clearTimeout(refreshTimer);
     refreshTimer = setTimeout(async () => {
+      // só recarrega se o pull realmente trouxe algo novo — um eco tardio
+      // do nosso próprio push não pode derrubar a página em loop
+      const before = JSON.stringify(snapshot(FF.state));
       await pull();
+      if (JSON.stringify(snapshot(FF.state)) === before) return;
       FF.toast('Dados sincronizados de outro dispositivo. Atualizando…', 'success');
       setTimeout(() => location.reload(), 800);
     }, 500);

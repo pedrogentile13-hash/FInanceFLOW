@@ -1,10 +1,10 @@
 /* ============================================================
-   FinanceFlow — Investimentos
+   FinanceFlow Investments — Investimentos
    ============================================================ */
 
 (() => {
   FF.init({
-    title: 'Investimentos',
+    title: 'FinanceFlow Investments',
     subtitle: 'Sua carteira trabalhando por você',
     actions: `<button class="btn btn-primary" id="newInv">+ Novo investimento</button>`,
   });

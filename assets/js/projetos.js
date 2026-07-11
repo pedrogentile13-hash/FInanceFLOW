@@ -1,12 +1,12 @@
 /* ============================================================
-   FinanceFlow — Projetos (mini sistemas de negócio)
+   FinanceFlow Enterprise — Empresas (mini sistemas de negócio)
    Inclui Dashboard Startup: MRR, ARR, runway, crescimento
    ============================================================ */
 
 (() => {
   FF.init({
-    title: 'Projetos',
-    subtitle: 'Cada projeto é um negócio — trate como um',
+    title: 'FinanceFlow Enterprise',
+    subtitle: 'Cada empresa é um negócio — trate como um',
     actions: `<button class="btn btn-primary" id="newProj">+ Novo projeto</button>`,
   });
   document.getElementById('newProj').onclick = () => openForm();

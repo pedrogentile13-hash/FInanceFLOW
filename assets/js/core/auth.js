@@ -12,11 +12,10 @@
   const USERS_KEY = 'financeflow_users';
   const SB_CFG_KEY = 'financeflow_supabase';
 
-  // Projeto Supabase padrão do FinanceFlow — ativo para todo mundo por
-  // padrão, sem precisar colar credenciais em Configurações. A anon key
-  // é pública por natureza (protegida pelas policies de RLS do projeto,
-  // ver supabase/schema.sql); pode ser trocada por um projeto próprio
-  // em Configurações → Nuvem.
+  // Projeto Supabase padrão do FinanceFlow — ativo para todo mundo,
+  // sem configuração. A anon key é pública por natureza (protegida
+  // pelas policies de RLS do projeto, ver supabase/schema.sql); para
+  // usar um projeto próprio, troque os valores abaixo.
   const DEFAULT_SUPABASE = {
     url: 'https://sembfpebrbszmpiqqbcb.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlbWJmcGVicmJzem1waXFxYmNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyODk3MTksImV4cCI6MjA5ODg2NTcxOX0.yddai8Sm_InjW13JFhHksFS0qQmIBkkIeova_-MCC7Y',

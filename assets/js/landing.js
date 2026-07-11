@@ -66,7 +66,7 @@
   const isCloud = FF.authMode() === 'supabase';
   document.getElementById('authModeHint').textContent = isCloud
     ? 'Conta em nuvem — sincroniza automaticamente entre dispositivos.'
-    : 'Conta local — seus dados ficam neste dispositivo. Ative a nuvem em Configurações.';
+    : 'Conta local — seus dados ficam neste dispositivo.';
 
   // abre direto se veio de #conta (ex.: link da sidebar ou logout)
   if (location.hash === '#conta') openAuth('login');
