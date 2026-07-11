@@ -232,6 +232,36 @@
       sub.textContent = 'Conectado ao seu próprio projeto Supabase. Lembre-se de rodar supabase/schema.sql nele.';
     }
 
+    // teste de sincronização com resultado visível: um "ok" aqui prova que
+    // uma gravação de verdade chegou ao banco (força write em user_settings)
+    document.getElementById('btnSyncNow').onclick = async () => {
+      const btn = document.getElementById('btnSyncNow');
+      const box = document.getElementById('syncResult');
+      const sess = FF.session();
+      if (!sess || sess.provider !== 'supabase') {
+        box.className = 'sync-result warn';
+        box.textContent = 'Você não está logado numa conta em nuvem. Entre pela página inicial primeiro.';
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = 'Sincronizando…';
+      const info = await FF.syncNow();
+      btn.disabled = false;
+      btn.textContent = 'Sincronizar agora';
+      if (info.status === 'ok') {
+        box.className = 'sync-result ok';
+        box.textContent = 'Sincronizado com sucesso — a gravação chegou ao banco de dados.';
+      } else if (info.status === 'no-jwt') {
+        box.className = 'sync-result warn';
+        box.textContent = 'Sessão na nuvem expirada. Saia da conta e entre novamente para renovar o acesso.';
+      } else {
+        box.className = 'sync-result err';
+        box.textContent = 'Erro do banco: ' + (info.error || 'desconhecido') +
+          ' — me envie esta mensagem para eu corrigir.';
+      }
+      FF.renderCloudStatus();
+    };
+
     document.getElementById('btnSbSave').onclick = () => {
       const url = document.getElementById('sbUrl').value.trim();
       const key = document.getElementById('sbKey').value.trim();

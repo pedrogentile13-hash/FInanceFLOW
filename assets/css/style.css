@@ -1127,3 +1127,44 @@ table.ff-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   .ff-table th, .ff-table td { padding: 9px 10px; font-size: 12.5px; }
   .table-wrap { -webkit-overflow-scrolling: touch; }
 }
+
+/* ---------- status da nuvem (sidebar) + banner de sessão expirada ---------- */
+.cloud-status {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 10px;
+  border-radius: 9px;
+  font-size: 11.5px; font-weight: 600;
+  color: rgba(255, 255, 255, .55);
+  background: rgba(255, 255, 255, .05);
+  margin-bottom: 8px;
+}
+.cloud-status.ok { color: #6EE7B7; }
+.cloud-status.err { color: #FCA5A5; }
+.cloud-status.warn { color: #FCD34D; }
+.cloud-status span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.cloud-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  flex-wrap: wrap;
+  padding: 13px 18px;
+  border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--warning) 45%, transparent);
+  background: var(--warning-soft);
+  color: var(--text);
+  font-size: 13.5px;
+  margin-bottom: 20px;
+  animation: cardIn .4s ease both;
+}
+.cloud-banner svg { vertical-align: -3px; margin-right: 4px; color: var(--warning); }
+
+.sync-result {
+  margin-top: 14px;
+  padding: 12px 15px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  border: 1px solid var(--border);
+  word-break: break-word;
+}
+.sync-result.ok { background: var(--success-soft); color: var(--success); border-color: color-mix(in srgb, var(--success) 35%, transparent); }
+.sync-result.err { background: var(--danger-soft); color: var(--danger); border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
+.sync-result.warn { background: var(--warning-soft); color: var(--warning); border-color: color-mix(in srgb, var(--warning) 40%, transparent); }

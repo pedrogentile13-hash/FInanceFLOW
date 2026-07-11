@@ -145,6 +145,7 @@
         </div>`).join('')}
       <div class="sidebar-footer">
         <div class="level-chip" id="levelChip"></div>
+        <div class="cloud-status" id="cloudStatus" hidden></div>
         <a class="user-chip" href="${session ? 'configuracoes.html' : '../index.html#conta'}" id="userChip">
           <span class="uc-avatar">${session ? FF.esc((session.nome || session.email || '?').charAt(0).toUpperCase()) : FF.icon('user', 15)}</span>
           <span class="uc-info">
@@ -166,10 +167,61 @@
     window.__ffToggleSidebar = () => { el.classList.toggle('open'); backdrop.classList.toggle('show'); };
 
     FF.renderLevelChip();
+    FF.renderCloudStatus();
     document.getElementById('exportBtn').onclick = FF.exportJSON;
     document.getElementById('importBtn').onclick = FF.importJSON;
     bindInstallButton();
   };
+
+  /* ---------- status visível da nuvem ---------- */
+  FF.renderCloudStatus = () => {
+    const el = document.getElementById('cloudStatus');
+    if (!el) return;
+    const sess = FF.session();
+    if (!sess || sess.provider !== 'supabase' || !FF.supabaseConfig()) { el.hidden = true; return; }
+    const info = (FF.syncInfo && FF.syncInfo()) || { status: 'idle' };
+    el.hidden = false;
+    if (info.status === 'ok') {
+      el.className = 'cloud-status ok';
+      el.innerHTML = `${FF.icon('cloud', 13)} <span>Nuvem sincronizada</span>`;
+    } else if (info.status === 'error') {
+      el.className = 'cloud-status err';
+      el.title = info.error || '';
+      el.innerHTML = `${FF.icon('cloud', 13)} <span>Erro ao sincronizar</span>`;
+    } else if (info.status === 'no-jwt') {
+      el.className = 'cloud-status warn';
+      el.innerHTML = `${FF.icon('cloud', 13)} <span>Entre novamente p/ sincronizar</span>`;
+    } else {
+      el.className = 'cloud-status';
+      el.innerHTML = `${FF.icon('cloud', 13)} <span>Conectando à nuvem…</span>`;
+    }
+  };
+
+  // sessão sem token válido (conta antiga/expirada): banner persistente com
+  // ação clara em vez de um toast que some — sem isso, nada salva na nuvem
+  // e o usuário não descobre o porquê
+  function showReloginBanner() {
+    if (document.getElementById('cloudBanner')) return;
+    const main = document.querySelector('.main');
+    if (!main) return;
+    const div = document.createElement('div');
+    div.id = 'cloudBanner';
+    div.className = 'cloud-banner';
+    div.innerHTML = `
+      <span>${FF.icon('cloud', 15)} Sua sessão na nuvem expirou — seus lançamentos <b>não estão sendo salvos no banco</b>.</span>
+      <button class="btn btn-primary btn-sm" id="cloudBannerBtn">Entrar novamente</button>`;
+    main.prepend(div);
+    document.getElementById('cloudBannerBtn').onclick = () => FF.logout();
+  }
+
+  document.addEventListener('ff:sync', (e) => {
+    FF.renderCloudStatus();
+    if (e.detail && e.detail.status === 'no-jwt') showReloginBanner();
+    if (e.detail && e.detail.status === 'ok') {
+      const b = document.getElementById('cloudBanner');
+      if (b) b.remove();
+    }
+  });
 
   FF.renderLevelChip = () => {
     const chip = document.getElementById('levelChip');

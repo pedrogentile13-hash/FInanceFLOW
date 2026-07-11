@@ -28,6 +28,15 @@
   let lastSynced = null; // último estado conhecido como "igual à nuvem"
   let lastPushAt = 0;
 
+  // status visível da sincronização — a UI (sidebar/configurações) escuta
+  // o evento ff:sync e mostra o erro EXATO em vez de engolir em console.warn
+  let syncInfo = { status: 'idle', error: null, at: 0 };
+  function setSyncInfo(status, error) {
+    syncInfo = { status, error: error || null, at: Date.now() };
+    document.dispatchEvent(new CustomEvent('ff:sync', { detail: syncInfo }));
+  }
+  FF.syncInfo = () => syncInfo;
+
   function canSync() {
     const s = FF.session();
     return !!(FF.supabaseConfig() && s && s.provider === 'supabase' && FF.supabase());
@@ -36,17 +45,13 @@
   // Com RLS, cada gravação precisa do JWT do usuário. Ter a sessão do APP
   // (financeflow_session) não basta: se o token do Supabase não existir
   // (conta criada sem confirmar o e-mail, token expirado, storage limpo),
-  // todo upsert falharia em silêncio. Verifica e avisa uma única vez.
-  let warnedNoJwt = false;
+  // todo upsert falharia em silêncio. Verifica e sinaliza a UI.
   async function hasCloudJwt() {
     try {
       const { data } = await FF.supabase().auth.getSession();
       if (data && data.session) return true;
     } catch (e) { /* trata como sem sessão */ }
-    if (!warnedNoJwt) {
-      warnedNoJwt = true;
-      FF.toast('Sua sessão na nuvem expirou — entre novamente para voltar a sincronizar.', 'error');
-    }
+    setSyncInfo('no-jwt', 'Sessão na nuvem expirada — entre novamente para sincronizar.');
     return false;
   }
 
@@ -109,21 +114,26 @@
     return { upserts, deletes };
   }
 
+  // devolve a mensagem de erro (se houver) para o status visível na UI
   async function syncTable(sb, table, current, previous, toRow) {
     const { upserts, deletes } = diffRows(current, previous);
     try {
       if (upserts.length) {
         const { error } = await sb.from(table).upsert(upserts.map(toRow));
-        if (error) console.warn(`FF sync push ${table}`, error.message);
+        if (error) { console.warn(`FF sync push ${table}`, error.message); return `${table}: ${error.message}`; }
       }
       if (deletes.length) {
         const { error } = await sb.from(table).delete().in('id', deletes);
-        if (error) console.warn(`FF sync delete ${table}`, error.message);
+        if (error) { console.warn(`FF sync delete ${table}`, error.message); return `${table}: ${error.message}`; }
       }
+      return null;
     } catch (e) {
       console.warn(`FF sync ${table} falhou`, e.message);
+      return `${table}: ${e.message}`;
     }
   }
+
+  let forceSettingsWrite = false; // "Sincronizar agora" força um write real
 
   async function push() {
     if (!canSync() || applyingRemote) return;
@@ -132,18 +142,24 @@
       const sb = FF.supabase();
       const s = FF.session();
       const map = rowMappers(s.userId);
-      const cur = snapshot(FF.state);
+      // clona ANTES dos awaits: se o usuário salvar algo no meio do push,
+      // esse algo fica fora deste snapshot e entra no diff do próximo push
+      const stateAtStart = JSON.parse(JSON.stringify(FF.state));
+      const cur = snapshot(stateAtStart);
       const prev = snapshot(lastSynced);
 
-      await syncTable(sb, 'transactions', cur.transactions, prev.transactions, map.transactions);
-      await syncTable(sb, 'goals', cur.goals, prev.goals, map.goals);
-      await syncTable(sb, 'dreams', cur.dreams, prev.dreams, map.dreams);
-      await syncTable(sb, 'investments', cur.investments, prev.investments, map.investments);
-      await syncTable(sb, 'categories', cur.categories, prev.categories, map.categories);
-      await syncTable(sb, 'projects', cur.projects, prev.projects, map.projects);
-      await syncTable(sb, 'project_entries', cur.entries, prev.entries, map.entries);
+      const errors = (await Promise.all([
+        syncTable(sb, 'transactions', cur.transactions, prev.transactions, map.transactions),
+        syncTable(sb, 'goals', cur.goals, prev.goals, map.goals),
+        syncTable(sb, 'dreams', cur.dreams, prev.dreams, map.dreams),
+        syncTable(sb, 'investments', cur.investments, prev.investments, map.investments),
+        syncTable(sb, 'categories', cur.categories, prev.categories, map.categories),
+        syncTable(sb, 'projects', cur.projects, prev.projects, map.projects),
+        syncTable(sb, 'project_entries', cur.entries, prev.entries, map.entries),
+      ])).filter(Boolean);
 
-      if (JSON.stringify(cur.userSettings) !== JSON.stringify(prev.userSettings)) {
+      if (forceSettingsWrite || JSON.stringify(cur.userSettings) !== JSON.stringify(prev.userSettings)) {
+        forceSettingsWrite = false;
         const { error } = await sb.from('user_settings').upsert({
           user_id: s.userId,
           xp: cur.userSettings.xp,
@@ -152,17 +168,34 @@
           seeded: cur.userSettings.seeded,
           updated_at: new Date().toISOString(),
         });
-        if (error) console.warn('FF sync push user_settings', error.message);
+        if (error) errors.push(`user_settings: ${error.message}`);
       }
 
-      lastSynced = JSON.parse(JSON.stringify(FF.state));
+      if (errors.length) {
+        // NÃO atualiza lastSynced: o que falhou continua no diff e será
+        // retentado no próximo push
+        setSyncInfo('error', errors[0]);
+        return;
+      }
+      lastSynced = stateAtStart;
       lastPushAt = Date.now();
+      setSyncInfo('ok');
     } catch (e) {
       // rede indisponível, schema ainda não criado, etc. — nunca deixa o
       // app quebrar por causa da sincronização; a próxima tentativa resolve
       console.warn('FF sync push falhou', e.message);
+      setSyncInfo('error', e.message);
     }
   }
+
+  // sincronização manual e verificável: força um write real em
+  // user_settings mesmo sem diff, então um "ok" prova que o banco aceitou
+  FF.syncNow = async () => {
+    clearTimeout(pushTimer);
+    forceSettingsWrite = true;
+    await push();
+    return FF.syncInfo();
+  };
 
   function schedulePush() {
     if (!canSync()) return;
@@ -186,6 +219,7 @@
       // rede indisponível, schema ainda não criado, etc. — mantém o estado
       // local como está em vez de deixar a página quebrar
       console.warn('FF sync pull falhou', e.message);
+      setSyncInfo('error', e.message);
     }
   }
 
@@ -193,6 +227,9 @@
     const sb = FF.supabase();
     const s = FF.session();
     const uid = s.userId;
+    // snapshot ANTES dos awaits: um FF.save() no meio do pull não pode
+    // acabar dentro de lastSynced (senão nunca seria enviado à nuvem)
+    const stateAtStart = JSON.parse(JSON.stringify(FF.state));
 
     const [tx, goals, dreams, inv, cats, projs, entries, settingsRow] = await Promise.all([
       sb.from('transactions').select('*').eq('user_id', uid),
@@ -206,12 +243,17 @@
     ]);
     const results = [tx, goals, dreams, inv, cats, projs, entries, settingsRow];
     const failed = results.find(r => r.error);
-    if (failed) { console.warn('FF sync pull', failed.error.message); return; }
+    if (failed) {
+      console.warn('FF sync pull', failed.error.message);
+      setSyncInfo('error', failed.error.message);
+      return;
+    }
 
     const hasRemoteData = [tx, goals, dreams, inv, cats, projs].some(r => r.data && r.data.length) || !!settingsRow.data;
     if (!hasRemoteData) {
       // conta nova: nada na nuvem ainda — mantém o estado local (zerado) como está
-      lastSynced = JSON.parse(JSON.stringify(FF.state));
+      lastSynced = stateAtStart;
+      setSyncInfo('ok');
       return;
     }
 
@@ -262,6 +304,7 @@
     FF.replaceState(Object.assign({}, FF.state, assembled));
     applyingRemote = false;
     lastSynced = JSON.parse(JSON.stringify(FF.state));
+    setSyncInfo('ok');
   }
 
   function scheduleRefresh() {

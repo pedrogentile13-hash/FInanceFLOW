@@ -8,7 +8,7 @@
      o app recarrega (atualização em tempo real)
    ============================================================ */
 
-const VERSION = 'ff-v1.2.1';
+const VERSION = 'ff-v1.3.0';
 
 const PRECACHE = [
   'index.html',
